@@ -17,7 +17,7 @@ class Task extends HiveObject {
   bool isDone;
 
   @HiveField(4)
-  String id;
+  String? id;
 
   @HiveField(5)
   bool isSynced;
@@ -29,7 +29,7 @@ class Task extends HiveObject {
   DateTime updatedAt;
 
   Task({
-    required this.id,
+    this.id,
     required this.title,
     required this.priority,
     this.deadline,

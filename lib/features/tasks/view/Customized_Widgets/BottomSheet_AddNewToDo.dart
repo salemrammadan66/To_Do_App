@@ -87,6 +87,9 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                     priority: priority!,
                     deadline: selectedDateTime!,
                     isDone: false,
+                    isSynced: false,
+                    isDeleted: false,
+                    updatedAt: DateTime.now(),
                   );
 
                   Provider.of<TaskProvider>(
