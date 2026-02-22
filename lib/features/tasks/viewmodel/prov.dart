@@ -36,10 +36,15 @@ class TaskProvider extends ChangeNotifier {
     await _syncManager.sync();
   }
 
-  void toggleTaskDone(Task task) {
+  Future<void> toggleTaskDone(Task task) async {
     task.isDone = !task.isDone;
-    task.save();
+    task.isSynced = false;
+    task.updatedAt = DateTime.now();
+
+    await task.save();
     notifyListeners();
+
+    await _syncManager.sync();
   }
 
   Future<void> deleteTask(Task task) async {
