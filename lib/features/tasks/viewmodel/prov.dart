@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:to_do_app/features/tasks/viewmodel/sync_manager.dart';
 import '../model/task_model.dart';
 
 class TaskProvider extends ChangeNotifier {
   late Box<Task> _taskBox;
+  late SyncManager _syncManager;
 
   TaskProvider() {
     _init();
   }
 
   Future<void> _init() async {
-    _taskBox = Hive.box<Task>('tasks'); // Box مفتوح جاهز
+    _taskBox = Hive.box<Task>('tasksBox');
+    _syncManager = SyncManager(_taskBox);
     notifyListeners();
   }
 
@@ -23,9 +26,14 @@ class TaskProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addTask(Task task) {
-    _taskBox.add(task);
+  Future<void> addTask(Task task) async {
+    task.updatedAt = DateTime.now();
+    task.isSynced = false;
+
+    await _taskBox.add(task);
     notifyListeners();
+
+    await _syncManager.sync();
   }
 
   void toggleTaskDone(Task task) {
@@ -34,8 +42,12 @@ class TaskProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void deleteTask(Task task) {
-    _taskBox.delete(task);
+  Future<void> deleteTask(Task task) async {
+    task.isDeleted = true;
+    task.isSynced = false;
+    task.updatedAt = DateTime.now();
+
+    await task.save();
     notifyListeners();
   }
 
