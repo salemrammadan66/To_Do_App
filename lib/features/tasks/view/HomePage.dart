@@ -16,7 +16,7 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomePageState extends State<Homepage> {
-  bool sortDescending = true; // true = High to Low ---- false = Low to High
+  //bool sortDescending = true; // true = High to Low ---- false = Low to High
 
   Consumer<TaskProvider> retriveFinishedTasks() {
     return Consumer<TaskProvider>(

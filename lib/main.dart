@@ -9,6 +9,10 @@ import 'Settings/App_Colors.dart';
 import 'features/Auth/view/welcome.dart';
 import 'features/Auth/viewmodel/authProvider.dart';
 import 'features/tasks/model/task_model.dart';
+import 'features/tasks/repository/task_RemoteDataSource.dart';
+import 'features/tasks/repository/task_api_service.dart';
+import 'features/tasks/repository/task_localDataSource.dart';
+import 'features/tasks/repository/task_repository.dart';
 import 'features/tasks/view/HomePage.dart';
 import 'features/tasks/viewmodel/prov.dart';
 
@@ -19,13 +23,22 @@ void main() async {
   Hive.init(appDocDir.path);
 
   Hive.registerAdapter(TaskAdapter());
-
   await Hive.openBox<Task>('tasks');
+
+  final taskBox = Hive.box<Task>('tasks');
+
+  final localDataSource = TaskLocalDataSource(taskBox);
+  final remoteDataSource = TaskRemoteDataSource(TaskApiService());
+
+  final repository = TaskRepository(
+    local: localDataSource,
+    remote: remoteDataSource,
+  );
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => TaskProvider()),
+        ChangeNotifierProvider(create: (_) => TaskProvider(repository)),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: const MyApp(),
@@ -45,7 +58,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(scaffoldBackgroundColor: AppColors.bodyColor),
-      home: Welcome(),
+      initialRoute: "welcome",
       routes: {
         "home": (context) => Homepage(),
         "login": (context) => LoginPage(),
