@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:to_do_app/features/Auth/viewmodel/authProvider.dart';
 
 import '../../../Settings/App_Colors.dart';
+import '../../tasks/viewmodel/prov.dart';
 import 'Cutomized_Widgets/login_page_textFields.dart';
 
 class LoginPage extends StatefulWidget {
@@ -90,15 +91,23 @@ class _LoginPageState extends State<LoginPage> {
                                   child: ElevatedButton(
                                     onPressed: () async {
                                       if (frmKey.currentState!.validate()) {
+                                        // final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                                        final taskRemote = Provider.of<TaskProvider>(context, listen: false)
+                                            .repository
+                                            .remote;
+
                                         await prov.login(
                                           emailcontroller.text,
                                           passcontroller.text,
+                                          taskRemote
                                         );
-                                        Navigator.pushNamedAndRemoveUntil(
-                                          context,
-                                          "home",
-                                          (Route<dynamic> route) => false,
-                                        );
+                                        if (prov.error == null) {
+                                          Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            "home",
+                                                (Route<dynamic> route) => false,
+                                          );
+                                        }
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
@@ -121,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                                   Padding(
                                     padding: const EdgeInsets.only(top: 10),
                                     child: Text(
-                                      "Login Failed",
+                                      prov.error!,
                                       style: TextStyle(color: Colors.red),
                                     ),
                                   ),

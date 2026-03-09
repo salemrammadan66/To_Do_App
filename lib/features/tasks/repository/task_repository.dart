@@ -16,12 +16,13 @@ class TaskRepository {
     return local.getAllTasks();
   }
 
-  Future<void> addTask(Task task) async {
-    task.updatedAt = DateTime.now();
-    task.isSynced = false;
-
+  Future<Task> addTask(Task task) async {
+    final id = await remote.create(task);
+    task.id = id;
+    task.isSynced = true;
     await local.addTask(task);
-    await _sync();
+
+    return task;
   }
 
   Future<void> toggleTask(Task task) async {

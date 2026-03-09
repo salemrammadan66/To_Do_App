@@ -3,8 +3,9 @@ import 'package:http/http.dart' as http;
 import '../model/auth_response_model.dart';
 
 class AuthService {
+  final String baseUrl = "https://todo-backend-oob0.onrender.com";
+
   Future<AuthResponseModel> login(String email, String password) async {
-    final String baseUrl = "https://todo-backend-oob0.onrender.com";
     final loginUrl = Uri.parse("$baseUrl/api/auth/login");
 
     final response = await http.post(
@@ -26,7 +27,6 @@ class AuthService {
     String email,
     String password,
   ) async {
-    final String baseUrl = "https://todo-backend-oob0.onrender.com";
     final loginUrl = Uri.parse("$baseUrl/api/auth/register");
 
     final response = await http.post(

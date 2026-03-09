@@ -52,13 +52,23 @@ class TaskProvider extends ChangeNotifier {
       _sortedTasks.where((t) => t.isDone).toList();
 
   Future<void> addTask(Task task) async {
-    await repository.addTask(task);
-    notifyListeners();
+    try {
+      final newTask = await repository.addTask(task);
+      _tasks.add(newTask);
+      notifyListeners();
+    } catch (e) {
+      print("Error adding task: $e");
+    }
   }
 
   Future<void> toggleTaskDone(Task task) async {
-    await repository.toggleTask(task);
-    notifyListeners();
+    try {
+      await repository.toggleTask(task);
+    } catch (e) {
+      print("Failed to toggle task: $e");
+    } finally {
+      notifyListeners();
+    }
   }
 
   Future<void> deleteTask(Task task) async {

@@ -1,12 +1,12 @@
 import 'package:hive/hive.dart';
 import '../model/task_model.dart';
 import 'task_api_service.dart';
-
 class SyncManager {
   final Box<Task> box;
-  final TaskApiService api = TaskApiService();
+  final TaskApiService api;
+  final String token;
 
-  SyncManager(this.box);
+  SyncManager(this.box, this.api, this.token);
 
   Future<void> sync() async {
     final unsynced =

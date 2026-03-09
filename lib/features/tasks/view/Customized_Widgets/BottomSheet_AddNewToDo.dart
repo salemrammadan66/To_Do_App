@@ -193,7 +193,7 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                 children: [
                   Radio<int>(
                     activeColor: AppColors.radioBtnColor,
-                    value: 3,
+                    value: 2,
                     groupValue: priority,
                     onChanged: (val) {
                       setState(() {
@@ -210,7 +210,7 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                 children: [
                   Radio<int>(
                     activeColor: AppColors.radioBtnColor,
-                    value: 2,
+                    value: 1,
                     groupValue: priority,
                     onChanged: (val) {
                       setState(() {
@@ -229,7 +229,7 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                   children: [
                     Radio<int>(
                       activeColor: AppColors.radioBtnColor,
-                      value: 1,
+                      value: 0,
                       groupValue: priority,
                       onChanged: (val) {
                         setState(() {

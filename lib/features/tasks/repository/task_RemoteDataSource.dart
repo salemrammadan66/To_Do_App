@@ -6,16 +6,18 @@ class TaskRemoteDataSource {
 
   TaskRemoteDataSource(this.api);
 
+  void setToken(String token) {
+    api.setToken(token);
+  }
+
   Future<String> create(Task task) async {
     final response = await api.createTask(task);
-    return response["id"];
+    if (response["_id"] == null) {
+      throw Exception("Task creation failed: ${response["error"]}");
+    }
+    return response["_id"];
   }
 
-  Future<void> update(Task task) async {
-    await api.updateTask(task);
-  }
-
-  Future<void> delete(String id) async {
-    await api.deleteTask(id);
-  }
+  Future<void> update(Task task) async => await api.updateTask(task);
+  Future<void> delete(String id) async => await api.deleteTask(id);
 }

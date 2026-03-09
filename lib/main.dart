@@ -27,19 +27,17 @@ void main() async {
 
   final taskBox = Hive.box<Task>('tasks');
 
-  final localDataSource = TaskLocalDataSource(taskBox);
-  final remoteDataSource = TaskRemoteDataSource(TaskApiService());
-
-  final repository = TaskRepository(
-    local: localDataSource,
-    remote: remoteDataSource,
-  );
+  final localDS = TaskLocalDataSource(taskBox);
+  final apiService = TaskApiService();
+  final remoteDS = TaskRemoteDataSource(apiService);
+  final repository = TaskRepository(local: localDS, remote: remoteDS);
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TaskProvider(repository)),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(
+            create: (_) => AuthProvider(remoteDS)),
       ],
       child: const MyApp(),
     ),
