@@ -1,12 +1,34 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import '../../../core/network/network_checker.dart';
 import '../model/task_model.dart';
 import '../repository/task_repository.dart';
 
 class TaskProvider extends ChangeNotifier {
   final TaskRepository repository;
+  StreamSubscription<bool>? _connectivitySubscription;
 
   TaskProvider(this.repository) {
     _loadTasks();
+
+    // Automatically push any pending offline changes as soon as the
+    // connection comes back, instead of waiting for the next manual action.
+    _connectivitySubscription = NetworkChecker.onConnectivityChanged.listen((
+      isOnline,
+    ) {
+      if (isOnline) {
+        syncPendingTasks();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription?.cancel();
+    super.dispose();
   }
 
   List<Task> _tasks = [];
@@ -24,8 +46,9 @@ class TaskProvider extends ChangeNotifier {
 
   List<Task> get _filteredTasks {
     return _allTasks.where((task) {
-      final matchesSearch =
-      task.title.toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesSearch = task.title.toLowerCase().contains(
+        _searchQuery.toLowerCase(),
+      );
 
       final matchesHide = _hideCompleted ? !task.isDone : true;
 
@@ -37,7 +60,7 @@ class TaskProvider extends ChangeNotifier {
     final list = _filteredTasks;
 
     list.sort(
-          (a, b) => _sortDescending
+      (a, b) => _sortDescending
           ? b.priority.compareTo(a.priority)
           : a.priority.compareTo(b.priority),
     );
@@ -45,11 +68,9 @@ class TaskProvider extends ChangeNotifier {
     return list;
   }
 
-  List<Task> get pendingTasks =>
-      _sortedTasks.where((t) => !t.isDone).toList();
+  List<Task> get pendingTasks => _sortedTasks.where((t) => !t.isDone).toList();
 
-  List<Task> get completedTasks =>
-      _sortedTasks.where((t) => t.isDone).toList();
+  List<Task> get completedTasks => _sortedTasks.where((t) => t.isDone).toList();
 
   Future<void> addTask(Task task) async {
     try {
@@ -57,7 +78,7 @@ class TaskProvider extends ChangeNotifier {
       _tasks.add(newTask);
       notifyListeners();
     } catch (e) {
-      print("Error adding task: $e");
+      debugPrint("Error adding task: $e");
     }
   }
 
@@ -65,15 +86,33 @@ class TaskProvider extends ChangeNotifier {
     try {
       await repository.toggleTask(task);
     } catch (e) {
-      print("Failed to toggle task: $e");
+      debugPrint("Failed to toggle task: $e");
     } finally {
       notifyListeners();
     }
   }
 
   Future<void> deleteTask(Task task) async {
-    await repository.deleteTask(task);
-    notifyListeners();
+    try {
+      await repository.deleteTask(task);
+    } catch (e) {
+      debugPrint("Failed to delete task: $e");
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  /// Pushes any locally pending (unsynced) changes to the server. Called
+  /// automatically when connectivity is restored, but safe to call manually
+  /// too (e.g. a pull-to-refresh or a "sync now" button).
+  Future<void> syncPendingTasks() async {
+    try {
+      await repository.syncPendingTasks();
+    } catch (e) {
+      debugPrint("Sync failed: $e");
+    } finally {
+      notifyListeners();
+    }
   }
 
   void toggleSort() {

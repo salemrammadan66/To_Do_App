@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
-import 'package:to_do_app/features/tasks/repository/task_remote_data_source.dart';
-import 'package:to_do_app/features/tasks/repository/task_local_data_source.dart';
-
+import 'package:flutter/foundation.dart';
 import '../model/task_model.dart';
+import 'task_local_data_source.dart';
+import 'task_remote_data_source.dart';
 
 class TaskRepository {
   final TaskLocalDataSource local;
@@ -24,7 +23,9 @@ class TaskRepository {
       task.isSynced = true;
       await local.saveTask(task);
     } catch (e) {
-      debugPrint("Sync postponed (will retry later): $e");
+      // No internet or the server request failed - the task stays saved
+      // locally and will sync automatically once connectivity is back.
+      debugPrint("Sync postponed for new task (will retry later): $e");
     }
 
     return task;
@@ -36,7 +37,7 @@ class TaskRepository {
     task.updatedAt = DateTime.now();
 
     await local.saveTask(task);
-    await _sync();
+    await syncPendingTasks();
   }
 
   Future<void> deleteTask(Task task) async {
@@ -45,27 +46,37 @@ class TaskRepository {
     task.updatedAt = DateTime.now();
 
     await local.saveTask(task);
-    await _sync();
+    await syncPendingTasks();
   }
 
-  Future<void> _sync() async {
+  /// Pushes every locally pending change (created/updated/deleted while
+  /// offline) to the server. Safe to call anytime - e.g. on app start or
+  /// automatically when connectivity comes back - since each task is
+  /// handled independently and a failure on one never blocks the rest.
+  Future<void> syncPendingTasks() async {
     final unsynced = local.getUnsyncedTasks();
 
     for (var task in unsynced) {
-      if (task.isDeleted) {
-        if (task.id != null) {
-          await remote.delete(task.id!);
+      try {
+        if (task.isDeleted) {
+          if (task.id != null) {
+            await remote.delete(task.id!);
+          }
+          await local.deleteTask(task);
+        } else if (task.id == null) {
+          final id = await remote.create(task);
+          task.id = id;
+          task.isSynced = true;
+          await local.saveTask(task);
+        } else {
+          await remote.update(task);
+          task.isSynced = true;
+          await local.saveTask(task);
         }
-        await local.deleteTask(task);
-      } else if (task.id == null) {
-        final id = await remote.create(task);
-        task.id = id;
-        task.isSynced = true;
-        await local.saveTask(task);
-      } else {
-        await remote.update(task);
-        task.isSynced = true;
-        await local.saveTask(task);
+      } catch (e) {
+        // Still offline, or this specific request failed - leave this task
+        // pending and keep trying to sync the rest.
+        debugPrint("Sync postponed for task '${task.title}': $e");
       }
     }
   }

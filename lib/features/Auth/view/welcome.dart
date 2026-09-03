@@ -31,7 +31,7 @@ class _WelcomeState extends State<Welcome> {
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
-                colors: [Colors.black.withOpacity(1), Colors.transparent],
+                colors: [Colors.black.withValues(alpha: 1), Colors.transparent],
               ),
             ),
           ),
@@ -39,7 +39,7 @@ class _WelcomeState extends State<Welcome> {
           BackdropFilter(
             // blur
             filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-            child: Container(color: Colors.black.withOpacity(0)),
+            child: Container(color: Colors.black.withValues(alpha: 0)),
           ),
 
           // Content

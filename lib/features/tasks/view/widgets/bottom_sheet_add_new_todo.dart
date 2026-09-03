@@ -147,101 +147,91 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
 
           Text("Choose Priority", style: TextStyle(color: AppColors.fontColor)),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                // Deadline choose Button
-                onPressed: () async {
-                  FocusScope.of(context).unfocus(); //unfocus and close keyboard
+          RadioGroup<int>(
+            groupValue: priority,
+            onChanged: (val) {
+              setState(() {
+                priority = val;
+              });
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  // Deadline choose Button
+                  onPressed: () async {
+                    FocusScope.of(
+                      context,
+                    ).unfocus(); //unfocus and close keyboard
 
-                  final DateTime? pickedDate = await showDatePicker(
-                    //pick date
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2030),
-                  );
-                  if (pickedDate == null) return;
-
-                  final TimeOfDay? pickedTime = await showTimePicker(
-                    //pick time
-                    context: context,
-                    initialTime: TimeOfDay.now(),
-                  );
-                  if (pickedTime == null) return;
-
-                  setState(() {
-                    selectedDateTime = DateTime(
-                      // save picked date and time
-                      pickedDate.year,
-                      pickedDate.month,
-                      pickedDate.day,
-                      pickedTime.hour,
-                      pickedTime.minute,
+                    final DateTime? pickedDate = await showDatePicker(
+                      //pick date
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2030),
                     );
-                  });
-                },
-                icon: Icon(
-                  Icons.notifications_none_outlined,
-                  color: Colors.white,
+                    if (pickedDate == null) return;
+                    if (!context.mounted) return;
+
+                    final TimeOfDay? pickedTime = await showTimePicker(
+                      //pick time
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+                    if (pickedTime == null) return;
+
+                    setState(() {
+                      selectedDateTime = DateTime(
+                        // save picked date and time
+                        pickedDate.year,
+                        pickedDate.month,
+                        pickedDate.day,
+                        pickedTime.hour,
+                        pickedTime.minute,
+                      );
+                    });
+                  },
+                  icon: Icon(
+                    Icons.notifications_none_outlined,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
 
-              // High RB
-              Row(
-                children: [
-                  Radio<int>(
-                    activeColor: AppColors.radioBtnColor,
-                    value: 2,
-                    groupValue: priority,
-                    onChanged: (val) {
-                      setState(() {
-                        priority = val;
-                      });
-                    },
-                  ),
-                  Text("High", style: TextStyle(color: AppColors.fontColor)),
-                ],
-              ),
-
-              // Medium RB
-              Row(
-                children: [
-                  Radio<int>(
-                    activeColor: AppColors.radioBtnColor,
-                    value: 1,
-                    groupValue: priority,
-                    onChanged: (val) {
-                      setState(() {
-                        priority = val;
-                      });
-                    },
-                  ),
-                  Text("Medium", style: TextStyle(color: AppColors.fontColor)),
-                ],
-              ),
-
-              // Low RB
-              Padding(
-                padding: const EdgeInsets.only(right: 50.0),
-                child: Row(
+                // High RB
+                Row(
                   children: [
-                    Radio<int>(
-                      activeColor: AppColors.radioBtnColor,
-                      value: 0,
-                      groupValue: priority,
-                      onChanged: (val) {
-                        setState(() {
-                          priority = val;
-                        });
-                      },
-                    ),
-                    Text("Low", style: TextStyle(color: AppColors.fontColor)),
+                    Radio<int>(activeColor: AppColors.radioBtnColor, value: 2),
+                    Text("High", style: TextStyle(color: AppColors.fontColor)),
                   ],
                 ),
-              ),
-            ],
+
+                // Medium RB
+                Row(
+                  children: [
+                    Radio<int>(activeColor: AppColors.radioBtnColor, value: 1),
+                    Text(
+                      "Medium",
+                      style: TextStyle(color: AppColors.fontColor),
+                    ),
+                  ],
+                ),
+
+                // Low RB
+                Padding(
+                  padding: const EdgeInsets.only(right: 50.0),
+                  child: Row(
+                    children: [
+                      Radio<int>(
+                        activeColor: AppColors.radioBtnColor,
+                        value: 0,
+                      ),
+                      Text("Low", style: TextStyle(color: AppColors.fontColor)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
           SizedBox(height: 5),
         ],

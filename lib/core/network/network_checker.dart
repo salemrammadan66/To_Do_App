@@ -12,10 +12,20 @@ class NetworkChecker {
     try {
       final result = await http
           .get(Uri.parse('https://google.com'))
-          .timeout(Duration(seconds: 5));
+          .timeout(const Duration(seconds: 5));
       return result.statusCode == 200;
     } catch (_) {
       return false;
     }
+  }
+
+  /// Emits `true` whenever the device regains connectivity (Wi-Fi/mobile/etc.),
+  /// and `false` when it loses it. Used to trigger an automatic sync of
+  /// pending offline changes as soon as the connection comes back.
+  static Stream<bool> get onConnectivityChanged {
+    return Connectivity().onConnectivityChanged.map(
+      (results) =>
+          !(results.isEmpty || results.contains(ConnectivityResult.none)),
+    );
   }
 }

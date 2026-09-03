@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
-import '../viewmodel/authProvider.dart';
+import '../viewmodel/auth_provider.dart';
 import 'Cutomized_Widgets/login_page_text_fields.dart';
 
 class LoginPage extends StatefulWidget {
@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
-                colors: [Colors.black.withOpacity(1), Colors.transparent],
+                colors: [Colors.black.withValues(alpha: 1), Colors.transparent],
               ),
             ),
           ),
@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
           BackdropFilter(
             // blur
             filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-            child: Container(color: Colors.black.withOpacity(0)),
+            child: Container(color: Colors.black.withValues(alpha: 0)),
           ),
 
           // Content
@@ -94,6 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                                           passcontroller.text,
                                         );
                                         if (prov.error == null) {
+                                          if (!context.mounted) return;
                                           Navigator.pushNamedAndRemoveUntil(
                                             context,
                                             "home",
