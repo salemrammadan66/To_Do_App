@@ -92,6 +92,16 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> editTask(Task task) async {
+    try {
+      await repository.editTask(task);
+    } catch (e) {
+      debugPrint("Failed to edit task: $e");
+    } finally {
+      notifyListeners();
+    }
+  }
+
   Future<void> deleteTask(Task task) async {
     try {
       await repository.deleteTask(task);

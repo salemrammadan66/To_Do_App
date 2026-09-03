@@ -40,6 +40,14 @@ class TaskRepository {
     await syncPendingTasks();
   }
 
+  Future<void> editTask(Task task) async {
+    task.isSynced = false;
+    task.updatedAt = DateTime.now();
+
+    await local.saveTask(task);
+    await syncPendingTasks();
+  }
+
   Future<void> deleteTask(Task task) async {
     task.isDeleted = true;
     task.isSynced = false;

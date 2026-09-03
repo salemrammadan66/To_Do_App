@@ -8,6 +8,7 @@ class TaskCard extends StatefulWidget {
   final bool isDone;
   final VoidCallback? onToggleDone;
   final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
 
   const TaskCard({
     super.key,
@@ -17,6 +18,7 @@ class TaskCard extends StatefulWidget {
     required this.isDone,
     this.onToggleDone,
     this.onDelete,
+    this.onEdit
   });
 
   @override
@@ -41,6 +43,7 @@ class _TaskCardState extends State<TaskCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: widget.onEdit,
       onLongPress: widget.onDelete,
       child: Card(
         elevation: 5,

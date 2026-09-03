@@ -6,7 +6,9 @@ import '../../viewmodel/prov.dart';
 import 'package:provider/provider.dart';
 
 class BottomsheetAddnewtodo extends StatefulWidget {
-  const BottomsheetAddnewtodo({super.key});
+  final Task? existingTask;
+
+  const BottomsheetAddnewtodo({super.key, this.existingTask});
 
   @override
   State<BottomsheetAddnewtodo> createState() => _BottomsheetAddnewtodoState();
@@ -19,6 +21,20 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
   TextEditingController controller = TextEditingController();
   FocusNode textFieldFocus = FocusNode();
   GlobalKey<FormState> formKey = GlobalKey();
+
+  bool get isEditing => widget.existingTask != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final task = widget.existingTask;
+    if (task != null) {
+      controller.text = task.title;
+      textFieldIsEmpty = task.title.isNotEmpty;
+      priority = task.priority;
+      selectedDateTime = task.deadline;
+    }
+  }
 
   @override
   void dispose() {
@@ -57,7 +73,7 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                 },
               ),
               Text(
-                "New To-Do",
+                isEditing ? "Edit To-Do" : "New To-Do",
                 style: TextStyle(
                   color: AppColors.fontColor,
                   fontSize: 18,
@@ -82,28 +98,31 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                     return;
                   }
 
-                  final task = Task(
-                    title: controller.text,
-                    priority: priority!,
-                    deadline: selectedDateTime!,
-                    isDone: false,
-                    isSynced: false,
-                    isDeleted: false,
-                    updatedAt: DateTime.now(),
-                  );
-
-                  Provider.of<TaskProvider>(
+                  final taskProvider = Provider.of<TaskProvider>(
                     context,
                     listen: false,
-                  ).addTask(task); // add task
+                  );
 
-                  setState(() {
-                    //empty the fields
-                    controller.clear();
-                    textFieldIsEmpty = false;
-                    priority = null;
-                    selectedDateTime = null;
-                  });
+                  if (isEditing) {
+                    // Mutate the existing task in place (same pattern used
+                    // by toggleTask/deleteTask) and push the edit.
+                    final task = widget.existingTask!;
+                    task.title = controller.text;
+                    task.priority = priority!;
+                    task.deadline = selectedDateTime!;
+                    taskProvider.editTask(task);
+                  } else {
+                    final task = Task(
+                      title: controller.text,
+                      priority: priority!,
+                      deadline: selectedDateTime!,
+                      isDone: false,
+                      isSynced: false,
+                      isDeleted: false,
+                      updatedAt: DateTime.now(),
+                    );
+                    taskProvider.addTask(task);
+                  }
 
                   Navigator.pop(context); //close bottomsheet
                 },
@@ -167,7 +186,7 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                     final DateTime? pickedDate = await showDatePicker(
                       //pick date
                       context: context,
-                      initialDate: DateTime.now(),
+                      initialDate: selectedDateTime ?? DateTime.now(),
                       firstDate: DateTime.now(),
                       lastDate: DateTime(2030),
                     );
@@ -177,7 +196,9 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                     final TimeOfDay? pickedTime = await showTimePicker(
                       //pick time
                       context: context,
-                      initialTime: TimeOfDay.now(),
+                      initialTime: selectedDateTime != null
+                          ? TimeOfDay.fromDateTime(selectedDateTime!)
+                          : TimeOfDay.now(),
                     );
                     if (pickedTime == null) return;
 
@@ -201,7 +222,7 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                 // High RB
                 Row(
                   children: [
-                    Radio<int>(activeColor: AppColors.radioBtnColor, value: 2),
+                    Radio<int>(activeColor: AppColors.radioBtnColor, value: 3),
                     Text("High", style: TextStyle(color: AppColors.fontColor)),
                   ],
                 ),
@@ -209,7 +230,7 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                 // Medium RB
                 Row(
                   children: [
-                    Radio<int>(activeColor: AppColors.radioBtnColor, value: 1),
+                    Radio<int>(activeColor: AppColors.radioBtnColor, value: 2),
                     Text(
                       "Medium",
                       style: TextStyle(color: AppColors.fontColor),
@@ -224,7 +245,7 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                     children: [
                       Radio<int>(
                         activeColor: AppColors.radioBtnColor,
-                        value: 0,
+                        value: 1,
                       ),
                       Text("Low", style: TextStyle(color: AppColors.fontColor)),
                     ],

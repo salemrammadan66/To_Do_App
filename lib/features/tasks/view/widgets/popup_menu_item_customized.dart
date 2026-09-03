@@ -22,9 +22,6 @@ class _PopupmenuitemCustomizedState extends State<PopupmenuitemCustomized> {
       color: AppColors.toDoCardColor,
       itemBuilder: (context) => [
         PopupMenuItem(
-          child: Text("Edit", style: TextStyle(color: AppColors.fontColor)),
-        ),
-        PopupMenuItem(
           onTap: () {
             context.read<TaskProvider>().toggleHideCompleted();
           },

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:to_do_app/features/tasks/view/widgets/floating_action_button.dart';
 import '../../../core/theme/app_colors.dart';
 import '../viewmodel/prov.dart';
+import 'widgets/bottom_sheet_add_new_todo.dart';
 import 'widgets/popup_menu_item_customized.dart';
 import 'widgets/search_bar_customized.dart';
 import 'widgets/task_card.dart';
@@ -45,6 +46,19 @@ class _HomePageState extends State<Homepage> {
                     priority: task.priority,
                     deadline: task.deadline,
                     isDone: task.isDone,
+                    onEdit: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: AppColors.bottomSheetBacgroundColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+                        ),
+                        builder: (context) {
+                          return BottomsheetAddnewtodo(existingTask: task);
+                        },
+                      );
+                    },
                     onToggleDone: () {
                       Provider.of<TaskProvider>(
                         context,
@@ -88,6 +102,19 @@ class _HomePageState extends State<Homepage> {
               priority: task.priority,
               deadline: task.deadline,
               isDone: task.isDone,
+              onEdit: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: AppColors.bottomSheetBacgroundColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+                  ),
+                  builder: (context) {
+                    return BottomsheetAddnewtodo(existingTask: task);
+                  },
+                );
+              },
               onToggleDone: () {
                 Provider.of<TaskProvider>(
                   context,
