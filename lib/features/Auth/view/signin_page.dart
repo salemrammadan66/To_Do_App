@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../../Settings/App_Colors.dart';
+import '../../../core/theme/app_colors.dart';
 import '../viewmodel/authProvider.dart';
-import 'Cutomized_Widgets/login_page_textFields.dart';
+import 'Cutomized_Widgets/login_page_text_fields.dart';
 
 class SigninPage extends StatefulWidget {
   const SigninPage({super.key});
@@ -81,6 +81,8 @@ class _SigninPageState extends State<SigninPage> {
                           ),
                         ),
 
+                        const SizedBox(height: 15),
+
                         // Email
                         LoginPageTextfields(
                           hintText: "Email",
@@ -119,11 +121,13 @@ class _SigninPageState extends State<SigninPage> {
                                           emailcontroller.text,
                                           passcontroller.text,
                                         );
-                                        Navigator.pushNamedAndRemoveUntil(
-                                          context,
-                                          "welcome",
-                                          (Route<dynamic> route) => false,
-                                        );
+                                        if (prov.error == null) {
+                                          Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            "home",
+                                            (Route<dynamic> route) => false,
+                                          );
+                                        }
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
@@ -146,7 +150,7 @@ class _SigninPageState extends State<SigninPage> {
                                   Padding(
                                     padding: const EdgeInsets.only(top: 10),
                                     child: Text(
-                                      "SignIn Failed",
+                                      prov.error!,
                                       style: TextStyle(color: Colors.red),
                                     ),
                                   ),

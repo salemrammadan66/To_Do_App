@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../Settings/App_Colors.dart';
-import 'BottomSheet_AddNewToDo.dart';
+import '../../../../core/theme/app_colors.dart';
+import 'bottom_sheet_add_new_todo.dart';
 
 class FloatingActionBtn extends StatefulWidget{
   const FloatingActionBtn({super.key});

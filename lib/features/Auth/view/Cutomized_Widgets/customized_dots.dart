@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../Settings/App_Colors.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class CustomizedDots extends StatelessWidget {
   final int currentIndex;

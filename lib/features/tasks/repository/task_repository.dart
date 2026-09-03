@@ -1,5 +1,6 @@
-import 'package:to_do_app/features/tasks/repository/task_RemoteDataSource.dart';
-import 'package:to_do_app/features/tasks/repository/task_localDataSource.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:to_do_app/features/tasks/repository/task_remote_data_source.dart';
+import 'package:to_do_app/features/tasks/repository/task_local_data_source.dart';
 
 import '../model/task_model.dart';
 
@@ -7,20 +8,24 @@ class TaskRepository {
   final TaskLocalDataSource local;
   final TaskRemoteDataSource remote;
 
-  TaskRepository({
-    required this.local,
-    required this.remote,
-  });
+  TaskRepository({required this.local, required this.remote});
 
   List<Task> getTasks() {
     return local.getAllTasks();
   }
 
   Future<Task> addTask(Task task) async {
-    final id = await remote.create(task);
-    task.id = id;
-    task.isSynced = true;
+    task.isSynced = false;
     await local.addTask(task);
+
+    try {
+      final id = await remote.create(task);
+      task.id = id;
+      task.isSynced = true;
+      await local.saveTask(task);
+    } catch (e) {
+      debugPrint("Sync postponed (will retry later): $e");
+    }
 
     return task;
   }
@@ -40,6 +45,7 @@ class TaskRepository {
     task.updatedAt = DateTime.now();
 
     await local.saveTask(task);
+    await _sync();
   }
 
   Future<void> _sync() async {

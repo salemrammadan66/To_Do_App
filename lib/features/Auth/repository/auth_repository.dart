@@ -1,5 +1,5 @@
-import 'auth_localDataSource.dart';
-import 'auth_remoteDataSource.dart';
+import 'auth_local_data_source.dart';
+import 'auth_remote_data_source.dart';
 
 class AuthRepository {
   final AuthRemoteDataSource remote;

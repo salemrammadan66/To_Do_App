@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:to_do_app/Settings/App_Colors.dart';
+import 'package:to_do_app/core/theme/app_colors.dart';
 
 class TaskCard extends StatefulWidget {
   final String title;

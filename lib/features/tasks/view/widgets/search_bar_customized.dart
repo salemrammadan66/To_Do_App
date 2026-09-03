@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../Settings/App_Colors.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../viewmodel/prov.dart';
 
 class SearchbarCustomized extends StatefulWidget{

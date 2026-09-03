@@ -5,13 +5,14 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_app/features/Auth/view/login_page.dart';
 import 'package:to_do_app/features/Auth/view/signin_page.dart';
-import 'Settings/App_Colors.dart';
+import 'core/network/api_client.dart';
+import 'core/theme/app_colors.dart';
 import 'features/Auth/view/welcome.dart';
 import 'features/Auth/viewmodel/authProvider.dart';
 import 'features/tasks/model/task_model.dart';
-import 'features/tasks/repository/task_RemoteDataSource.dart';
+import 'features/tasks/repository/task_remote_data_source.dart';
 import 'features/tasks/repository/task_api_service.dart';
-import 'features/tasks/repository/task_localDataSource.dart';
+import 'features/tasks/repository/task_local_data_source.dart';
 import 'features/tasks/repository/task_repository.dart';
 import 'features/tasks/view/HomePage.dart';
 import 'features/tasks/viewmodel/prov.dart';
@@ -27,25 +28,39 @@ void main() async {
 
   final taskBox = Hive.box<Task>('tasks');
 
+  // A single shared HTTP client for all features (auth + tasks),
+  // so setting the token once makes it available to both.
+  final apiClient = ApiClient();
+
   final localDS = TaskLocalDataSource(taskBox);
-  final apiService = TaskApiService();
+  final apiService = TaskApiService(apiClient);
   final remoteDS = TaskRemoteDataSource(apiService);
   final repository = TaskRepository(local: localDS, remote: remoteDS);
+
+  // Check whether the user has already logged in and has a saved token
+  final authBox = await Hive.openBox('authBox');
+  final savedToken = authBox.get('token');
+  final bool isLoggedIn = savedToken != null;
+
+  if (isLoggedIn) {
+    apiClient.setToken(savedToken);
+  }
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TaskProvider(repository)),
-        ChangeNotifierProvider(
-            create: (_) => AuthProvider(remoteDS)),
+        ChangeNotifierProvider(create: (_) => AuthProvider(apiClient)),
       ],
-      child: const MyApp(),
+      child: MyApp(initialRoute: isLoggedIn ? "home" : "welcome"),
     ),
   );
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final String initialRoute;
+
+  const MyApp({super.key, required this.initialRoute});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -56,7 +71,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(scaffoldBackgroundColor: AppColors.bodyColor),
-      initialRoute: "welcome",
+      initialRoute: widget.initialRoute,
       routes: {
         "home": (context) => Homepage(),
         "login": (context) => LoginPage(),

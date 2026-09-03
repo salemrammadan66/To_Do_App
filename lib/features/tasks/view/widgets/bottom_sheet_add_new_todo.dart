@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../Settings/App_Colors.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../model/task_model.dart';
 import '../../viewmodel/prov.dart';
 import 'package:provider/provider.dart';

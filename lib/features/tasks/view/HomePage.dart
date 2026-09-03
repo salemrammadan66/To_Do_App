@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:to_do_app/Settings/App_Colors.dart';
-
+import 'package:to_do_app/features/tasks/view/widgets/floating_action_button.dart';
+import '../../../core/theme/app_colors.dart';
 import '../viewmodel/prov.dart';
-import 'Customized_Widgets/Floating_Action_BTN.dart';
-import 'Customized_Widgets/PopupMenuItem_Customized.dart';
-import 'Customized_Widgets/SearchBar_Customized.dart';
-import 'Customized_Widgets/Task_Card.dart';
+import 'widgets/popup_menu_item_customized.dart';
+import 'widgets/search_bar_customized.dart';
+import 'widgets/task_card.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -17,7 +16,6 @@ class Homepage extends StatefulWidget {
 
 class _HomePageState extends State<Homepage> {
   //bool sortDescending = true; // true = High to Low ---- false = Low to High
-
   Consumer<TaskProvider> retriveFinishedTasks() {
     return Consumer<TaskProvider>(
       builder: (context, taskProvider, child) {

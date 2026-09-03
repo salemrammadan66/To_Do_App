@@ -1,14 +1,11 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../../../core/constants/api_constants.dart';
+import '../../../core/network/api_client.dart';
 import '../model/task_model.dart';
 
 class TaskApiService {
-  final String baseUrl = "https://todo-backend-oob0.onrender.com/api/todos";
-  String? token;
+  final ApiClient _client;
 
-  void setToken(String tokenValue) {
-    token = tokenValue;
-  }
+  TaskApiService(this._client);
 
   String priorityToString(int priority) {
     switch (priority) {
@@ -23,45 +20,27 @@ class TaskApiService {
     }
   }
 
-  Future<Map<String, dynamic>> createTask(Task task) async {
-    final response = await http.post(
-      Uri.parse(baseUrl),
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
-      body: jsonEncode({
-        "title": task.title,
-        "priority": priorityToString(task.priority),
-        "deadline": task.deadline?.toIso8601String(),
-      }),
-    );
-
-    return jsonDecode(response.body);
+  Map<String, dynamic> _taskBody(Task task, {bool withIsDone = false}) {
+    return {
+      "title": task.title,
+      "priority": priorityToString(task.priority),
+      "deadline": task.deadline?.toIso8601String(),
+      if (withIsDone) "isDone": task.isDone,
+    };
   }
 
-  Future<void> updateTask(Task task) async {
-    await http.put(
-      Uri.parse("$baseUrl/${task.id}"),
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
-      body: jsonEncode({
-        "title": task.title,
-        "priority": priorityToString(task.priority),
-        "deadline": task.deadline?.toIso8601String(),
-        "isDone": task.isDone,
-      }),
+  Future<Map<String, dynamic>> createTask(Task task) {
+    return _client.post(ApiConstants.tasksEndpoint, body: _taskBody(task));
+  }
+
+  Future<void> updateTask(Task task) {
+    return _client.put(
+      "${ApiConstants.tasksEndpoint}/${task.id}",
+      body: _taskBody(task, withIsDone: true),
     );
   }
 
-  Future<void> deleteTask(String id) async {
-    await http.delete(
-      Uri.parse("$baseUrl/$id"),
-      headers: {
-        "Authorization": "Bearer $token",
-      },
-    );
+  Future<void> deleteTask(String id) {
+    return _client.delete("${ApiConstants.tasksEndpoint}/$id");
   }
 }

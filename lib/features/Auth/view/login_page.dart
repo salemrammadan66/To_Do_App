@@ -2,11 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:to_do_app/features/Auth/viewmodel/authProvider.dart';
-
-import '../../../Settings/App_Colors.dart';
-import '../../tasks/viewmodel/prov.dart';
-import 'Cutomized_Widgets/login_page_textFields.dart';
+import '../../../core/theme/app_colors.dart';
+import '../viewmodel/authProvider.dart';
+import 'Cutomized_Widgets/login_page_text_fields.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -91,21 +89,15 @@ class _LoginPageState extends State<LoginPage> {
                                   child: ElevatedButton(
                                     onPressed: () async {
                                       if (frmKey.currentState!.validate()) {
-                                        // final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                                        final taskRemote = Provider.of<TaskProvider>(context, listen: false)
-                                            .repository
-                                            .remote;
-
                                         await prov.login(
                                           emailcontroller.text,
                                           passcontroller.text,
-                                          taskRemote
                                         );
                                         if (prov.error == null) {
                                           Navigator.pushNamedAndRemoveUntil(
                                             context,
                                             "home",
-                                                (Route<dynamic> route) => false,
+                                            (Route<dynamic> route) => false,
                                           );
                                         }
                                       }
