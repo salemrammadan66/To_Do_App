@@ -52,7 +52,7 @@ class TaskProvider extends ChangeNotifier {
 
       final matchesHide = _hideCompleted ? !task.isDone : true;
 
-      return matchesSearch && matchesHide;
+      return matchesSearch && matchesHide && !task.isDeleted;
     }).toList();
   }
 
@@ -72,13 +72,19 @@ class TaskProvider extends ChangeNotifier {
 
   List<Task> get completedTasks => _sortedTasks.where((t) => t.isDone).toList();
 
-  Future<void> addTask(Task task) async {
+  /// Saves locally (fast) and returns right away - the network push to
+  /// the server happens afterwards in the background, so the UI never
+  /// waits on it.
+  Future<bool> addTask(Task task) async {
     try {
       final newTask = await repository.addTask(task);
       _tasks.add(newTask);
       notifyListeners();
+      syncPendingTasks(); // fire-and-forget background sync
+      return true;
     } catch (e) {
       debugPrint("Error adding task: $e");
+      return false;
     }
   }
 
@@ -89,32 +95,40 @@ class TaskProvider extends ChangeNotifier {
       debugPrint("Failed to toggle task: $e");
     } finally {
       notifyListeners();
+      syncPendingTasks(); // fire-and-forget background sync
     }
   }
 
-  Future<void> editTask(Task task) async {
-    try {
-      await repository.editTask(task);
-    } catch (e) {
-      debugPrint("Failed to edit task: $e");
-    } finally {
-      notifyListeners();
-    }
-  }
-
-  Future<void> deleteTask(Task task) async {
+  Future<bool> deleteTask(Task task) async {
     try {
       await repository.deleteTask(task);
+      _tasks.remove(task);
+      return true;
     } catch (e) {
       debugPrint("Failed to delete task: $e");
+      return false;
     } finally {
       notifyListeners();
+      syncPendingTasks(); // fire-and-forget background sync
+    }
+  }
+
+  Future<bool> editTask(Task task) async {
+    try {
+      await repository.editTask(task);
+      return true;
+    } catch (e) {
+      debugPrint("Failed to edit task: $e");
+      return false;
+    } finally {
+      notifyListeners();
+      syncPendingTasks(); // fire-and-forget background sync
     }
   }
 
   /// Pushes any locally pending (unsynced) changes to the server. Called
-  /// automatically when connectivity is restored, but safe to call manually
-  /// too (e.g. a pull-to-refresh or a "sync now" button).
+  /// automatically when connectivity is restored or right after a local
+  /// change, but safe to call manually too (e.g. pull-to-refresh).
   Future<void> syncPendingTasks() async {
     try {
       await repository.syncPendingTasks();

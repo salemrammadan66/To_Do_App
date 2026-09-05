@@ -4,6 +4,7 @@ import 'package:to_do_app/features/tasks/view/widgets/floating_action_button.dar
 import '../../../core/theme/app_colors.dart';
 import '../viewmodel/prov.dart';
 import 'widgets/bottom_sheet_add_new_todo.dart';
+import 'widgets/completed_section_header.dart';
 import 'widgets/popup_menu_item_customized.dart';
 import 'widgets/search_bar_customized.dart';
 import 'widgets/task_card.dart';
@@ -16,6 +17,8 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomePageState extends State<Homepage> {
+  bool isCompletedExpanded = false;
+
   //bool sortDescending = true; // true = High to Low ---- false = Low to High
   Consumer<TaskProvider> retriveFinishedTasks() {
     return Consumer<TaskProvider>(
@@ -28,46 +31,54 @@ class _HomePageState extends State<Homepage> {
           //get data and show
           padding: const EdgeInsets.only(top: 8.0),
           child: Column(
-            spacing: 5,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Completed (${completedTasks.length})",
-                style: TextStyle(color: Colors.grey),
-              ),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: completedTasks.length,
-                itemBuilder: (context, index) {
-                  final task = completedTasks[index];
-                  return TaskCard(
-                    title: task.title,
-                    priority: task.priority,
-                    deadline: task.deadline,
-                    isDone: task.isDone,
-                    onEdit: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: AppColors.bottomSheetBacgroundColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-                        ),
-                        builder: (context) {
-                          return BottomsheetAddnewtodo(existingTask: task);
-                        },
-                      );
-                    },
-                    onToggleDone: () {
-                      Provider.of<TaskProvider>(
-                        context,
-                        listen: false,
-                      ).toggleTaskDone(task);
-                    },
-                  );
+              CompletedSectionHeader(
+                count: completedTasks.length,
+                isExpanded: isCompletedExpanded,
+                onTap: () {
+                  setState(() {
+                    isCompletedExpanded = !isCompletedExpanded;
+                  });
                 },
               ),
+              if (isCompletedExpanded)
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: completedTasks.length,
+                  itemBuilder: (context, index) {
+                    final task = completedTasks[index];
+                    return TaskCard(
+                      title: task.title,
+                      priority: task.priority,
+                      deadline: task.deadline,
+                      isDone: task.isDone,
+                      isSynced: task.isSynced,
+                      onEdit: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: AppColors.bottomSheetBacgroundColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(25),
+                            ),
+                          ),
+                          builder: (context) {
+                            return BottomsheetAddnewtodo(existingTask: task);
+                          },
+                        );
+                      },
+                      onToggleDone: () {
+                        Provider.of<TaskProvider>(
+                          context,
+                          listen: false,
+                        ).toggleTaskDone(task);
+                      },
+                    );
+                  },
+                ),
             ],
           ),
         );
@@ -102,13 +113,16 @@ class _HomePageState extends State<Homepage> {
               priority: task.priority,
               deadline: task.deadline,
               isDone: task.isDone,
+              isSynced: task.isSynced,
               onEdit: () {
                 showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: AppColors.bottomSheetBacgroundColor,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(25),
+                    ),
                   ),
                   builder: (context) {
                     return BottomsheetAddnewtodo(existingTask: task);
@@ -145,12 +159,32 @@ class _HomePageState extends State<Homepage> {
                         ),
                       ),
                       TextButton(
-                        onPressed: () {
-                          Provider.of<TaskProvider>(
+                        onPressed: () async {
+                          final messenger = ScaffoldMessenger.of(context);
+                          final navigator = Navigator.of(context);
+
+                          final success = await Provider.of<TaskProvider>(
                             context,
                             listen: false,
                           ).deleteTask(task);
-                          Navigator.pop(context);
+                          if (!context.mounted) return;
+
+                          navigator.pop();
+
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  success
+                                      ? "Task deleted"
+                                      : "Something went wrong, please try again",
+                                ),
+                                backgroundColor: success
+                                    ? AppColors.checkedTaskColor
+                                    : Colors.red,
+                              ),
+                            );
+                          });
                         },
                         child: Text(
                           "Delete",
@@ -175,82 +209,89 @@ class _HomePageState extends State<Homepage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: FloatingActionBtn(),
       appBar: AppBar(
+        title: Text("To-Do",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold, fontSize: 32),),
         scrolledUnderElevation: 0,
         backgroundColor: AppColors.appBarColor,
-        actions: [
-          PopupmenuitemCustomized(),
-        ],
+        actions: [PopupmenuitemCustomized()],
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 25.0, right: 25),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SearchbarCustomized(),
+      body: RefreshIndicator(
+        color: Colors.black,
+        onRefresh: () => Provider.of<TaskProvider>(
+          context,
+          listen: false,
+        ).syncPendingTasks(),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 25.0, right: 25),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SearchbarCustomized(),
 
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "To-dos",
-                        style: TextStyle(
-                          color: AppColors.fontColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 36,
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "To-dos",
+                          style: TextStyle(
+                            color: AppColors.fontColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 36,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 5),
+                        SizedBox(height: 5),
 
-                      //tasks count
-                      Consumer<TaskProvider>(
-                        builder: (context, taskProvider, child) {
-                          return Text(
-                            "${taskProvider.pendingTasks.length} to-dos",
-                            style: TextStyle(color: Colors.grey),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Sort",
-                        style: TextStyle(color: Colors.white, fontSize: 20),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          //tasks sorting
-                          Provider.of<TaskProvider>(
-                            context,
-                            listen: false,
-                          ).toggleSort();
-                        },
-                        icon: Icon(
-                          Icons.sort_by_alpha,
-                          color: Colors.white,
-                          size: 40,
+                        //tasks count
+                        Consumer<TaskProvider>(
+                          builder: (context, taskProvider, child) {
+                            return Text(
+                              "${taskProvider.pendingTasks.length} to-dos",
+                              style: TextStyle(color: Colors.grey),
+                            );
+                          },
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "Sort",
+                          style: TextStyle(color: Colors.white, fontSize: 20),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            //tasks sorting
+                            Provider.of<TaskProvider>(
+                              context,
+                              listen: false,
+                            ).toggleSort();
+                          },
+                          icon: Icon(
+                            Icons.sort_by_alpha,
+                            color: Colors.white,
+                            size: 40,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
 
-              // unfinished
-              retriveUnFinishedTasks(),
+                // unfinished
+                retriveUnFinishedTasks(),
 
-              //finished
-              retriveFinishedTasks(),
+                //finished
+                retriveFinishedTasks(),
 
-              SizedBox(height: 20),
-            ],
+                SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),

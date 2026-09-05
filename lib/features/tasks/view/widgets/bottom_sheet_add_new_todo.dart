@@ -90,7 +90,7 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                         : Colors.grey,
                   ),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   if (controller.text.isEmpty ||
                       priority == null ||
                       selectedDateTime == null) {
@@ -102,6 +102,11 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                     context,
                     listen: false,
                   );
+                  final messenger = ScaffoldMessenger.of(context);
+                  final navigator = Navigator.of(context);
+
+                  bool success;
+                  String successMessage;
 
                   if (isEditing) {
                     // Mutate the existing task in place (same pattern used
@@ -110,7 +115,8 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                     task.title = controller.text;
                     task.priority = priority!;
                     task.deadline = selectedDateTime!;
-                    taskProvider.editTask(task);
+                    success = await taskProvider.editTask(task);
+                    successMessage = "Task updated";
                   } else {
                     final task = Task(
                       title: controller.text,
@@ -121,10 +127,25 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                       isDeleted: false,
                       updatedAt: DateTime.now(),
                     );
-                    taskProvider.addTask(task);
+                    success = await taskProvider.addTask(task);
+                    successMessage = "Task added";
                   }
 
-                  Navigator.pop(context); //close bottomsheet
+                  if (!context.mounted) return;
+
+                  navigator.pop(); //close bottomsheet
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        success
+                            ? successMessage
+                            : "Something went wrong, please try again",
+                      ),
+                      backgroundColor: success
+                          ? AppColors.checkedTaskColor
+                          : Colors.red,
+                    ),
+                  );
                 },
               ),
             ],

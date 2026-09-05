@@ -6,6 +6,7 @@ class TaskCard extends StatefulWidget {
   final int priority;
   final dynamic deadline;
   final bool isDone;
+  final bool isSynced;
   final VoidCallback? onToggleDone;
   final VoidCallback? onDelete;
   final VoidCallback? onEdit;
@@ -16,9 +17,10 @@ class TaskCard extends StatefulWidget {
     required this.deadline,
     required this.priority,
     required this.isDone,
+    required this.isSynced,
     this.onToggleDone,
     this.onDelete,
-    this.onEdit
+    this.onEdit,
   });
 
   @override
@@ -67,6 +69,11 @@ class _TaskCardState extends State<TaskCard> {
                   widget.title,
                   style: TextStyle(color: AppColors.fontColor, fontSize: 16),
                 ),
+                if (!widget.isSynced)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 6),
+                    child: Icon(Icons.cloud_off, size: 16, color: Colors.grey),
+                  ),
               ],
             ),
             Padding(
