@@ -59,4 +59,23 @@ class AuthService {
     );
     return AuthResponseModel.fromJson(data);
   }
+
+  Future<UserModel> getProfile() async {
+    final data = await _client.get(ApiConstants.meEndpoint);
+    return UserModel.fromJson(data);
+  }
+
+  Future<UserModel> updateProfile({
+    String? name,
+    String? email,
+    String? password,
+  }) async {
+    final body = <String, dynamic>{};
+    if (name != null && name.isNotEmpty) body['name'] = name;
+    if (email != null && email.isNotEmpty) body['email'] = email;
+    if (password != null && password.isNotEmpty) body['password'] = password;
+
+    final data = await _client.put(ApiConstants.meEndpoint, body: body);
+    return UserModel.fromJson(data);
+  }
 }

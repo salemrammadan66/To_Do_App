@@ -23,6 +23,17 @@ class _PopupmenuitemCustomizedState extends State<PopupmenuitemCustomized> {
       itemBuilder: (context) => [
         PopupMenuItem(
           onTap: () {
+            Future.delayed(Duration.zero, () {
+              Navigator.of(context).pushNamed("profile");
+            });
+          },
+          child: Text(
+            "Profile",
+            style: TextStyle(color: AppColors.fontColor),
+          ),
+        ),
+        PopupMenuItem(
+          onTap: () {
             context.read<TaskProvider>().toggleHideCompleted();
           },
           child: Text(

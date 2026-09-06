@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'core/network/api_client.dart';
 import 'core/theme/app_colors.dart';
 import 'features/Auth/view/login_page.dart';
+import 'features/Auth/view/profile_page.dart';
 import 'features/Auth/view/signin_page.dart';
 import 'features/Auth/view/welcome.dart';
 import 'features/Auth/viewmodel/auth_provider.dart';
@@ -78,6 +79,7 @@ class _MyAppState extends State<MyApp> {
         "login": (context) => LoginPage(),
         "register": (context) => SigninPage(),
         "welcome": (context) => Welcome(),
+        "profile": (context) => ProfilePage(),
       },
     );
   }

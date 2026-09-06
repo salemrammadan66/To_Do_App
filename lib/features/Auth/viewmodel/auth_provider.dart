@@ -84,4 +84,49 @@ class AuthProvider extends ChangeNotifier {
     if (token != null) _client.setToken(token!);
     notifyListeners();
   }
+
+  Future<void> fetchProfile() async {
+    try {
+      isLoading = true;
+      failure = null;
+      notifyListeners();
+
+      user = await _authService.getProfile();
+    } on Failure catch (f) {
+      failure = f;
+    } catch (e) {
+      failure = UnknownFailure(e.toString());
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> updateProfile({
+    String? name,
+    String? email,
+    String? password,
+  }) async {
+    try {
+      isLoading = true;
+      failure = null;
+      notifyListeners();
+
+      user = await _authService.updateProfile(
+        name: name,
+        email: email,
+        password: password,
+      );
+      return true;
+    } on Failure catch (f) {
+      failure = f;
+      return false;
+    } catch (e) {
+      failure = UnknownFailure(e.toString());
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }
