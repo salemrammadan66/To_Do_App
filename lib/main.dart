@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'core/network/api_client.dart';
+import 'core/notifications/notification_service.dart';
 import 'core/theme/app_colors.dart';
 import 'features/Auth/view/login_page.dart';
 import 'features/Auth/view/profile_page.dart';
@@ -15,11 +16,13 @@ import 'features/tasks/repository/task_remote_data_source.dart';
 import 'features/tasks/repository/task_api_service.dart';
 import 'features/tasks/repository/task_local_data_source.dart';
 import 'features/tasks/repository/task_repository.dart';
+import 'features/tasks/view/calendar_page.dart';
 import 'features/tasks/view/home_page.dart';
 import 'features/tasks/viewmodel/prov.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.initialize();
 
   final appDocDir = await getApplicationDocumentsDirectory();
   Hive.init(appDocDir.path);
@@ -80,6 +83,7 @@ class _MyAppState extends State<MyApp> {
         "register": (context) => SigninPage(),
         "welcome": (context) => Welcome(),
         "profile": (context) => ProfilePage(),
+        "calendar": (context) => CalendarPage(),
       },
     );
   }

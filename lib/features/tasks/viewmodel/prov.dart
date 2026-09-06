@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/network/network_checker.dart';
+import '../../../core/notifications/notification_service.dart';
 import '../model/task_model.dart';
 import '../repository/task_repository.dart';
 
@@ -13,6 +14,7 @@ class TaskProvider extends ChangeNotifier {
 
   TaskProvider(this.repository) {
     _loadTasks();
+    pullFromServer();
 
     // Automatically push any pending offline changes as soon as the
     // connection comes back, instead of waiting for the next manual action.
@@ -81,6 +83,7 @@ class TaskProvider extends ChangeNotifier {
       _tasks.add(newTask);
       notifyListeners();
       syncPendingTasks(); // fire-and-forget background sync
+      _updateReminderFor(newTask);
       return true;
     } catch (e) {
       debugPrint("Error adding task: $e");
@@ -91,6 +94,7 @@ class TaskProvider extends ChangeNotifier {
   Future<void> toggleTaskDone(Task task) async {
     try {
       await repository.toggleTask(task);
+      _updateReminderFor(task);
     } catch (e) {
       debugPrint("Failed to toggle task: $e");
     } finally {
@@ -102,6 +106,7 @@ class TaskProvider extends ChangeNotifier {
   Future<bool> deleteTask(Task task) async {
     try {
       await repository.deleteTask(task);
+      _updateReminderFor(task);
       _tasks.remove(task);
       return true;
     } catch (e) {
@@ -116,6 +121,7 @@ class TaskProvider extends ChangeNotifier {
   Future<bool> editTask(Task task) async {
     try {
       await repository.editTask(task);
+      _updateReminderFor(task);
       return true;
     } catch (e) {
       debugPrint("Failed to edit task: $e");
@@ -139,6 +145,19 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> pullFromServer() async {
+    try {
+      await repository.pullFromServer();
+      _tasks = repository.getTasks();
+    } catch (e) {
+      debugPrint("Pull from server failed: $e");
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  List<Task> get allTasks => _tasks.where((t) => !t.isDeleted).toList();
+
   void toggleSort() {
     _sortDescending = !_sortDescending;
     notifyListeners();
@@ -152,5 +171,20 @@ class TaskProvider extends ChangeNotifier {
   void setSearchQuery(String value) {
     _searchQuery = value;
     notifyListeners();
+  }
+
+  void _updateReminderFor(Task task) {
+    final id = task.key as int?;
+    if (id == null) return;
+
+    if (task.isDeleted || task.isDone || task.deadline == null) {
+      NotificationService.cancelTaskReminder(id);
+    } else {
+      NotificationService.scheduleTaskReminder(
+        id: id,
+        title: task.title,
+        deadline: task.deadline!,
+      );
+    }
   }
 }

@@ -24,6 +24,41 @@ class ApiClient {
   Future<Map<String, dynamic>> get(String url) =>
       _send(() => http.get(Uri.parse(url), headers: _headers));
 
+  Future<List<dynamic>> getList(String url) async {
+    try {
+      final response = await http
+          .get(Uri.parse(url), headers: _headers)
+          .timeout(const Duration(seconds: 15));
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final decoded = jsonDecode(response.body);
+        return decoded is List ? decoded : [];
+      }
+
+      Map<String, dynamic> data = {};
+      try {
+        final decoded = jsonDecode(response.body);
+        if (decoded is Map<String, dynamic>) data = decoded;
+      } catch (_) {}
+
+      final message =
+          data["message"]?.toString() ??
+          data["error"]?.toString() ??
+          "Request failed (status code: ${response.statusCode})";
+      throw ServerFailure(message);
+    } on SocketException {
+      throw const NetworkFailure();
+    } on TimeoutException {
+      throw const NetworkFailure(
+        "The server isn't responding, check your internet connection",
+      );
+    } on Failure {
+      rethrow;
+    } catch (e) {
+      throw UnknownFailure(e.toString());
+    }
+  }
+
   Future<Map<String, dynamic>> post(String url, {Map<String, dynamic>? body}) =>
       _send(
         () => http.post(

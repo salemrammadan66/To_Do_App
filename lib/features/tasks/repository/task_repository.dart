@@ -76,4 +76,22 @@ class TaskRepository {
       }
     }
   }
+
+  /// Pulls the user's tasks from the server and adds any that aren't
+  /// already stored locally (matched by remote id). Safe to call
+  /// repeatedly - existing tasks are never duplicated or overwritten.
+  Future<void> pullFromServer() async {
+    final remoteTasks = await remote.fetchAll();
+    final localTasks = local.getAllTasks();
+    final knownRemoteIds = localTasks
+        .map((t) => t.id)
+        .whereType<String>()
+        .toSet();
+
+    for (final task in remoteTasks) {
+      if (task.id != null && !knownRemoteIds.contains(task.id)) {
+        await local.addTask(task);
+      }
+    }
+  }
 }

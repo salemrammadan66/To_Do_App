@@ -209,10 +209,17 @@ class _HomePageState extends State<Homepage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: FloatingActionBtn(),
       appBar: AppBar(
-        title: Text("To-Do",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold, fontSize: 32),),
         scrolledUnderElevation: 0,
         backgroundColor: AppColors.appBarColor,
-        actions: [PopupmenuitemCustomized()],
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed("calendar");
+            },
+            icon: Icon(Icons.calendar_month_outlined, color: Colors.white),
+          ),
+          PopupmenuitemCustomized(),
+        ],
       ),
       body: RefreshIndicator(
         color: Colors.black,

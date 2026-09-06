@@ -7,40 +7,27 @@ class TaskApiService {
 
   TaskApiService(this._client);
 
-  String priorityToString(int priority) {
-    switch (priority) {
-      case 3:
-        return "high";
-      case 2:
-        return "medium";
-      case 1:
-        return "low";
-      default:
-        return "low";
-    }
-  }
-
-  Map<String, dynamic> _taskBody(Task task, {bool withIsDone = false}) {
-    return {
-      "title": task.title,
-      "priority": priorityToString(task.priority),
-      "deadline": task.deadline?.toIso8601String(),
-      if (withIsDone) "isDone": task.isDone,
-    };
-  }
-
+  // The backend only knows about "title" and "completed" - it has no
+  // concept of priority or deadline, so those never get sent.
   Future<Map<String, dynamic>> createTask(Task task) {
-    return _client.post(ApiConstants.tasksEndpoint, body: _taskBody(task));
+    return _client.post(
+      ApiConstants.tasksEndpoint,
+      body: {"title": task.title},
+    );
   }
 
   Future<void> updateTask(Task task) {
     return _client.put(
       "${ApiConstants.tasksEndpoint}/${task.id}",
-      body: _taskBody(task, withIsDone: true),
+      body: {"title": task.title, "completed": task.isDone},
     );
   }
 
   Future<void> deleteTask(String id) {
     return _client.delete("${ApiConstants.tasksEndpoint}/$id");
+  }
+
+  Future<List<dynamic>> getTasks() {
+    return _client.getList(ApiConstants.tasksEndpoint);
   }
 }

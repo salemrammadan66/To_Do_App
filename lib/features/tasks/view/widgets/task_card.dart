@@ -28,6 +28,35 @@ class TaskCard extends StatefulWidget {
 }
 
 class _TaskCardState extends State<TaskCard> {
+  static const List<String> _monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  String _formatDeadline(BuildContext context) {
+    final deadline = widget.deadline as DateTime?;
+    if (deadline == null) return "No deadline";
+    final time = TimeOfDay.fromDateTime(deadline).format(context);
+    return "${deadline.day} ${_monthNames[deadline.month - 1]}, $time";
+  }
+
+  bool get _isOverdue {
+    final deadline = widget.deadline as DateTime?;
+    return !widget.isDone &&
+        deadline != null &&
+        deadline.isBefore(DateTime.now());
+  }
+
   String getPriorityName(int priority) {
     //set priority name for show
     switch (priority) {
@@ -79,10 +108,19 @@ class _TaskCardState extends State<TaskCard> {
             Padding(
               padding: EdgeInsets.only(right: 15),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    "${widget.deadline.day}/${widget.deadline.month}/${widget.deadline.year}", //deadline date
-                    style: TextStyle(color: AppColors.fontColor),
+                    _formatDeadline(context), //deadline date + time
+                    style: TextStyle(
+                      color: _isOverdue
+                          ? Colors.redAccent
+                          : AppColors.fontColor,
+                      fontSize: 12,
+                      fontWeight: _isOverdue
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
                   ),
                   Text(
                     getPriorityName(widget.priority),
