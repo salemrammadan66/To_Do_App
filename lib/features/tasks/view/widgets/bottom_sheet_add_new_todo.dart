@@ -24,6 +24,54 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
 
   bool get isEditing => widget.existingTask != null;
 
+  bool get isFormValid =>
+      controller.text.trim().isNotEmpty &&
+      priority != null &&
+      selectedDateTime != null;
+
+  Widget _themedPicker(BuildContext context, Widget? child) {
+    return Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: ColorScheme.dark(
+          primary: AppColors.floatingBtnColor,
+          onPrimary: Colors.black,
+          surface: AppColors.toDoCardColor,
+          onSurface: AppColors.fontColor,
+        ),
+        dialogTheme: DialogThemeData(backgroundColor: AppColors.toDoCardColor),
+        timePickerTheme: TimePickerThemeData(
+          backgroundColor: AppColors.toDoCardColor,
+          dialBackgroundColor: AppColors.bottomSheetBacgroundColor,
+          dialHandColor: AppColors.floatingBtnColor,
+          hourMinuteColor: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? AppColors.floatingBtnColor
+                : AppColors.bottomSheetBacgroundColor,
+          ),
+          hourMinuteTextColor: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? Colors.black
+                : AppColors.fontColor,
+          ),
+          dayPeriodColor: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? AppColors.floatingBtnColor
+                : AppColors.bottomSheetBacgroundColor,
+          ),
+          dayPeriodTextColor: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? Colors.black
+                : AppColors.fontColor,
+          ),
+          dayPeriodBorderSide: BorderSide(color: AppColors.floatingBtnColor),
+          entryModeIconColor: AppColors.fontColor,
+          helpTextStyle: TextStyle(color: AppColors.fontColor),
+        ),
+      ),
+      child: child!,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -85,68 +133,61 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                 child: Text(
                   "Save",
                   style: TextStyle(
-                    color: textFieldIsEmpty
-                        ? AppColors.saveBtnColor
-                        : Colors.grey,
+                    color: isFormValid ? AppColors.saveBtnColor : Colors.grey,
                   ),
                 ),
-                onPressed: () async {
-                  if (controller.text.isEmpty ||
-                      priority == null ||
-                      selectedDateTime == null) {
-                    //check fields
-                    return;
-                  }
+                onPressed: !isFormValid
+                    ? null
+                    : () async {
+                        final taskProvider = Provider.of<TaskProvider>(
+                          context,
+                          listen: false,
+                        );
+                        final messenger = ScaffoldMessenger.of(context);
+                        final navigator = Navigator.of(context);
 
-                  final taskProvider = Provider.of<TaskProvider>(
-                    context,
-                    listen: false,
-                  );
-                  final messenger = ScaffoldMessenger.of(context);
-                  final navigator = Navigator.of(context);
+                        bool success;
+                        String successMessage;
 
-                  bool success;
-                  String successMessage;
+                        if (isEditing) {
+                          // Mutate the existing task in place (same pattern
+                          // used by toggleTask/deleteTask) and push the edit.
+                          final task = widget.existingTask!;
+                          task.title = controller.text;
+                          task.priority = priority!;
+                          task.deadline = selectedDateTime!;
+                          success = await taskProvider.editTask(task);
+                          successMessage = "Task updated";
+                        } else {
+                          final task = Task(
+                            title: controller.text,
+                            priority: priority!,
+                            deadline: selectedDateTime!,
+                            isDone: false,
+                            isSynced: false,
+                            isDeleted: false,
+                            updatedAt: DateTime.now(),
+                          );
+                          success = await taskProvider.addTask(task);
+                          successMessage = "Task added";
+                        }
 
-                  if (isEditing) {
-                    // Mutate the existing task in place (same pattern used
-                    // by toggleTask/deleteTask) and push the edit.
-                    final task = widget.existingTask!;
-                    task.title = controller.text;
-                    task.priority = priority!;
-                    task.deadline = selectedDateTime!;
-                    success = await taskProvider.editTask(task);
-                    successMessage = "Task updated";
-                  } else {
-                    final task = Task(
-                      title: controller.text,
-                      priority: priority!,
-                      deadline: selectedDateTime!,
-                      isDone: false,
-                      isSynced: false,
-                      isDeleted: false,
-                      updatedAt: DateTime.now(),
-                    );
-                    success = await taskProvider.addTask(task);
-                    successMessage = "Task added";
-                  }
+                        if (!context.mounted) return;
 
-                  if (!context.mounted) return;
-
-                  navigator.pop(); //close bottomsheet
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        success
-                            ? successMessage
-                            : "Something went wrong, please try again",
-                      ),
-                      backgroundColor: success
-                          ? AppColors.checkedTaskColor
-                          : Colors.red,
-                    ),
-                  );
-                },
+                        navigator.pop(); //close bottomsheet
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              success
+                                  ? successMessage
+                                  : "Something went wrong, please try again",
+                            ),
+                            backgroundColor: success
+                                ? AppColors.checkedTaskColor
+                                : Colors.red,
+                          ),
+                        );
+                      },
               ),
             ],
           ),
@@ -162,15 +203,9 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
             cursorColor: Colors.white,
             controller: controller,
             onChanged: (val) {
-              if (val.isEmpty) {
-                setState(() {
-                  textFieldIsEmpty = false;
-                });
-              } else {
-                setState(() {
-                  textFieldIsEmpty = true;
-                });
-              }
+              setState(() {
+                textFieldIsEmpty = val.isNotEmpty;
+              });
             },
             style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
@@ -197,47 +232,64 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
-                  // Deadline choose Button
-                  onPressed: () async {
-                    FocusScope.of(
-                      context,
-                    ).unfocus(); //unfocus and close keyboard
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      // Deadline choose Button
+                      onPressed: () async {
+                        FocusScope.of(
+                          context,
+                        ).unfocus(); //unfocus and close keyboard
 
-                    final DateTime? pickedDate = await showDatePicker(
-                      //pick date
-                      context: context,
-                      initialDate: selectedDateTime ?? DateTime.now(),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2030),
-                    );
-                    if (pickedDate == null) return;
-                    if (!context.mounted) return;
+                        final DateTime? pickedDate = await showDatePicker(
+                          //pick date
+                          context: context,
+                          initialDate: selectedDateTime ?? DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(2030),
+                          builder: _themedPicker,
+                        );
+                        if (pickedDate == null) return;
+                        if (!context.mounted) return;
 
-                    final TimeOfDay? pickedTime = await showTimePicker(
-                      //pick time
-                      context: context,
-                      initialTime: selectedDateTime != null
-                          ? TimeOfDay.fromDateTime(selectedDateTime!)
-                          : TimeOfDay.now(),
-                    );
-                    if (pickedTime == null) return;
+                        final TimeOfDay? pickedTime = await showTimePicker(
+                          //pick time
+                          context: context,
+                          initialTime: selectedDateTime != null
+                              ? TimeOfDay.fromDateTime(selectedDateTime!)
+                              : TimeOfDay.now(),
+                          builder: _themedPicker,
+                        );
+                        if (pickedTime == null) return;
 
-                    setState(() {
-                      selectedDateTime = DateTime(
-                        // save picked date and time
-                        pickedDate.year,
-                        pickedDate.month,
-                        pickedDate.day,
-                        pickedTime.hour,
-                        pickedTime.minute,
-                      );
-                    });
-                  },
-                  icon: Icon(
-                    Icons.notifications_none_outlined,
-                    color: Colors.white,
-                  ),
+                        setState(() {
+                          selectedDateTime = DateTime(
+                            // save picked date and time
+                            pickedDate.year,
+                            pickedDate.month,
+                            pickedDate.day,
+                            pickedTime.hour,
+                            pickedTime.minute,
+                          );
+                        });
+                      },
+                      icon: Icon(
+                        Icons.notifications_none_outlined,
+                        color: Colors.white,
+                      ),
+                    ),
+                    if (selectedDateTime != null)
+                      Text(
+                        "${selectedDateTime!.day}/${selectedDateTime!.month}/${selectedDateTime!.year}\n"
+                        "${TimeOfDay.fromDateTime(selectedDateTime!).format(context)}",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppColors.fontColor,
+                          fontSize: 11,
+                        ),
+                      ),
+                  ],
                 ),
 
                 // High RB
