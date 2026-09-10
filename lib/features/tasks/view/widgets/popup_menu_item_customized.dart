@@ -34,7 +34,6 @@ class _PopupmenuitemCustomizedState extends State<PopupmenuitemCustomized> {
             style: TextStyle(color: AppColors.fontColor),
           ),
         ),
-        // new_str
         PopupMenuItem(
           onTap: () {
             Future.delayed(Duration.zero, () {

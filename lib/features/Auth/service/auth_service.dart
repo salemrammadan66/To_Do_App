@@ -8,12 +8,6 @@ class AuthService {
 
   AuthService(this._client);
 
-  // ============================================================
-  // Temporary mock mode: the real server is currently down (503
-  // Suspended). Keep this true to keep testing the app without
-  // waiting on the server. Once the server is back up, flip it to
-  // false and remove this temporary block.
-  // ============================================================
   static const bool useMockAuth = false;
 
   AuthResponseModel _mockAuthResponse(String email, {String? name}) {

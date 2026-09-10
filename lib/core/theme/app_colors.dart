@@ -2,23 +2,20 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Current theme mode flag — flipped by ThemeProvider
-  static bool isDark = true;
+  static bool isDark = false;
 
-  // ---- Dark mode values ----
   static const Color _appBarColorDark = Color(0xFF161616);
   static const Color _bodyColorDark = Color(0xFF161616);
   static const Color _fontColorDark = Color(0xFFffffff);
   static const Color _bottomSheetBacgroundColorDark = Color(0xFF1f1f1f);
   static const Color _searchBarColorDark = Color(0xFF2f2f2f);
 
-  // ---- Light mode values ----
   static const Color _appBarColorLight = Color(0xFFFFFFFF);
   static const Color _bodyColorLight = Color(0xFFF7F5F2);
   static const Color _fontColorLight = Color(0xFF1A1A1A);
   static const Color _bottomSheetBacgroundColorLight = Color(0xFFFFFFFF);
   static const Color _searchBarColorLight = Color(0xFFEDE7DD);
 
-  // ---- Public getters (تستخدم بنفس الطريقة القديمة، AppColors.bodyColor مثلاً) ----
   static Color get appBarColor => isDark ? _appBarColorDark : _appBarColorLight;
 
   static Color get bodyColor => isDark ? _bodyColorDark : _bodyColorLight;
@@ -31,7 +28,6 @@ class AppColors {
   static Color get searchBarColor =>
       isDark ? _searchBarColorDark : _searchBarColorLight;
 
-  // ألوان البراند (الذهبي) بتفضل زي ما هي في الوضعين
   static const Color checkColor = Color(0xFFdfa20c);
   static const Color floatingBtnColor = Color(0xFFe6a200);
   static const Color checkedTaskColor = Color(0xFFe6a200);
@@ -41,7 +37,6 @@ class AppColors {
 
   static const Color toDoCardColor = Color(0xFF2f2f2f);
 
-  // باليت كروت المهام (نفس اللي عملناه للهوم، ثابت في الوضعين)
   static const List<Color> cardPalette = [
     Color(0xFFF0EBE3),
     Color(0xFFF7EFC0),

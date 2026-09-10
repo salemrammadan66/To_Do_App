@@ -3,10 +3,6 @@ import 'package:flutter/services.dart';
 
 import '../theme/app_colors.dart';
 
-/// Widget موحّد لكل حقول الإدخال في المشروع.
-/// لو بعتّله [validator] بيشتغل كـ TextFormField (للفاليديشن)،
-/// لو من غيره بيشتغل كـ TextField عادي.
-/// الألوان كلها جايه من AppColors فبتتغير لوحدها مع تبديل الثيم.
 class AppTextField extends StatelessWidget {
   final TextEditingController? controller;
   final String? hintText;

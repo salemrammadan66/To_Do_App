@@ -7,6 +7,8 @@ import '../../model/task_model.dart';
 import '../../viewmodel/prov.dart';
 import 'package:provider/provider.dart';
 
+import 'avatar_picker.dart';
+
 class BottomsheetAddnewtodo extends StatefulWidget {
   final Task? existingTask;
 
@@ -20,6 +22,7 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
   DateTime? selectedDateTime;
   bool textFieldIsEmpty = false;
   int? priority;
+  int selectedAvatarId = 0;
   TextEditingController controller = TextEditingController();
   FocusNode textFieldFocus = FocusNode();
   GlobalKey<FormState> formKey = GlobalKey();
@@ -83,6 +86,7 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
       textFieldIsEmpty = task.title.isNotEmpty;
       priority = task.priority;
       selectedDateTime = task.deadline;
+      selectedAvatarId = task.avatarId;
     }
   }
 
@@ -129,7 +133,6 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                 ),
               ),
 
-              // new_str
               AppTextActionButton(
                 text: "Save",
                 color: isFormValid ? AppColors.saveBtnColor : Colors.grey,
@@ -147,12 +150,11 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                         String successMessage;
 
                         if (isEditing) {
-                          // Mutate the existing task in place (same pattern
-                          // used by toggleTask/deleteTask) and push the edit.
                           final task = widget.existingTask!;
                           task.title = controller.text;
                           task.priority = priority!;
                           task.deadline = selectedDateTime!;
+                          task.avatarId = selectedAvatarId;
                           success = await taskProvider.editTask(task);
                           successMessage = "Task updated";
                         } else {
@@ -164,6 +166,7 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                             isSynced: false,
                             isDeleted: false,
                             updatedAt: DateTime.now(),
+                            avatarId: selectedAvatarId,
                           );
                           success = await taskProvider.addTask(task);
                           successMessage = "Task added";
@@ -203,6 +206,15 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
             onChanged: (val) {
               setState(() {
                 textFieldIsEmpty = val.isNotEmpty;
+              });
+            },
+          ),
+
+          AvatarPicker(
+            selectedId: selectedAvatarId,
+            onSelected: (id) {
+              setState(() {
+                selectedAvatarId = id;
               });
             },
           ),

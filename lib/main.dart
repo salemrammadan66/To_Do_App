@@ -34,8 +34,6 @@ void main() async {
 
   final taskBox = Hive.box<Task>('tasks');
 
-  // A single shared HTTP client for all features (auth + tasks),
-  // so setting the token once makes it available to both.
   final apiClient = ApiClient();
 
   final localDS = TaskLocalDataSource(taskBox);
@@ -43,7 +41,6 @@ void main() async {
   final remoteDS = TaskRemoteDataSource(apiService);
   final repository = TaskRepository(local: localDS, remote: remoteDS);
 
-  // new_str
   final authBox = await Hive.openBox('authBox');
   final savedToken = authBox.get('token');
   final bool isLoggedIn = savedToken != null;
@@ -52,9 +49,8 @@ void main() async {
     apiClient.setToken(savedToken);
   }
 
-  // تحميل الثيم المحفوظ (Dark افتراضيًا)
   final settingsBox = await Hive.openBox('settingsBox');
-  AppColors.isDark = settingsBox.get('isDark', defaultValue: true);
+  AppColors.isDark = settingsBox.get('isDark', defaultValue: false);
 
   runApp(
     MultiProvider(

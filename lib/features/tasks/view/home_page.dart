@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:to_do_app/features/tasks/view/widgets/floating_action_button.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../core/widgets/app_buttons.dart';
 import '../viewmodel/prov.dart';
 import 'widgets/bottom_sheet_add_new_todo.dart';
 import 'widgets/completed_section_header.dart';
+import 'widgets/floating_action_button.dart';
 import 'widgets/popup_menu_item_customized.dart';
 import 'widgets/search_bar_customized.dart';
 import 'widgets/task_card.dart';
@@ -53,6 +53,7 @@ class _HomePageState extends State<Homepage> {
                     final task = completedTasks[index];
                     return TaskCard(
                       index: index,
+                      avatarId: task.avatarId,
                       title: task.title,
                       priority: task.priority,
                       deadline: task.deadline,
@@ -113,6 +114,7 @@ class _HomePageState extends State<Homepage> {
             final task = pendingTasks[index];
             return TaskCard(
               index: index,
+              avatarId: task.avatarId,
               title: task.title,
               priority: task.priority,
               deadline: task.deadline,
@@ -152,7 +154,6 @@ class _HomePageState extends State<Homepage> {
                       "Are you sure you want to delete this task?",
                       style: TextStyle(color: Colors.grey),
                     ),
-                    // new_str
                     actions: [
                       AppTextActionButton(
                         text: "Cancel",

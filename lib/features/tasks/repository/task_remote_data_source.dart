@@ -17,9 +17,6 @@ class TaskRemoteDataSource {
   Future<void> update(Task task) async => await api.updateTask(task);
   Future<void> delete(String id) async => await api.deleteTask(id);
 
-  /// Fetches all of the logged-in user's tasks from the server. Since the
-  /// backend only stores title/completed, priority defaults to Low and
-  /// deadline comes back empty - that data never existed server-side.
   Future<List<Task>> fetchAll() async {
     final list = await api.getTasks();
 
@@ -28,8 +25,8 @@ class TaskRemoteDataSource {
       return Task(
         id: map['_id'] as String?,
         title: map['title'] as String? ?? '',
-        priority: 1, // Low - the backend doesn't track priority
-        deadline: null, // the backend doesn't track a deadline either
+        priority: 1,
+        deadline: null,
         isDone: map['completed'] as bool? ?? false,
         isSynced: true,
         isDeleted: false,

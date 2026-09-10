@@ -19,9 +19,6 @@ class NetworkChecker {
     }
   }
 
-  /// Emits `true` whenever the device regains connectivity (Wi-Fi/mobile/etc.),
-  /// and `false` when it loses it. Used to trigger an automatic sync of
-  /// pending offline changes as soon as the connection comes back.
   static Stream<bool> get onConnectivityChanged {
     return Connectivity().onConnectivityChanged.map(
       (results) =>

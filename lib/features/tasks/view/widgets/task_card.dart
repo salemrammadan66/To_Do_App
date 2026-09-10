@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:to_do_app/core/theme/app_colors.dart';
 
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/cute_avatars.dart';
+
+// new_str
 class TaskCard extends StatefulWidget {
   final int index;
   final String title;
@@ -8,6 +11,7 @@ class TaskCard extends StatefulWidget {
   final dynamic deadline;
   final bool isDone;
   final bool isSynced;
+  final int avatarId;
   final VoidCallback? onToggleDone;
   final VoidCallback? onDelete;
   final VoidCallback? onEdit;
@@ -20,6 +24,7 @@ class TaskCard extends StatefulWidget {
     required this.priority,
     required this.isDone,
     required this.isSynced,
+    this.avatarId = 0,
     this.onToggleDone,
     this.onDelete,
     this.onEdit,
@@ -93,8 +98,11 @@ class _TaskCardState extends State<TaskCard> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
+              // new_str
               child: Row(
                 children: [
+                  CuteAvatar(data: avatarById(widget.avatarId), size: 30),
+                  const SizedBox(width: 6),
                   Checkbox(
                     value: widget.isDone,
                     onChanged: (_) => widget.onToggleDone?.call(),

@@ -4,17 +4,11 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../errors/failure.dart';
 
-/// A single unified layer for making HTTP requests, instead of every
-/// service (auth/task) making its own http.post/put/delete calls and
-/// handling errors its own way.
-///
-/// Any error is translated into a unified [Failure], so the layers
-/// above (repositories/providers) deal with one type instead of
-/// scattered Exceptions.
 class ApiClient {
   String? _token;
 
   void setToken(String token) => _token = token;
+  void clearToken() => _token = null;
 
   Map<String, String> get _headers => {
     "Content-Type": "application/json",

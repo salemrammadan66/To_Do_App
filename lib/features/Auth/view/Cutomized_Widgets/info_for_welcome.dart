@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:to_do_app/features/Auth/view/Cutomized_Widgets/scrollable_info.dart';
 import 'customized_dots.dart';
+import 'scrollable_info.dart';
 
 class InfoForWelcome extends StatefulWidget {
   const InfoForWelcome({super.key});

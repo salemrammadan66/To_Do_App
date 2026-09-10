@@ -13,10 +13,6 @@ class TaskRepository {
     return local.getAllTasks();
   }
 
-  // All the methods below only touch local storage (fast, no network
-  // wait). The caller (TaskProvider) triggers syncPendingTasks() in the
-  // background afterwards, so the UI never blocks on the server.
-
   Future<Task> addTask(Task task) async {
     task.isSynced = false;
     await local.addTask(task);
@@ -46,11 +42,6 @@ class TaskRepository {
     await local.saveTask(task);
   }
 
-  /// Pushes every locally pending change (created/updated/deleted while
-  /// offline) to the server. Safe to call anytime - e.g. on app start,
-  /// automatically when connectivity comes back, or right after a local
-  /// change - since each task is handled independently and a failure on
-  /// one never blocks the rest.
   Future<void> syncPendingTasks() async {
     final unsynced = local.getUnsyncedTasks();
 
@@ -77,9 +68,6 @@ class TaskRepository {
     }
   }
 
-  /// Pulls the user's tasks from the server and adds any that aren't
-  /// already stored locally (matched by remote id). Safe to call
-  /// repeatedly - existing tasks are never duplicated or overwritten.
   Future<void> pullFromServer() async {
     final remoteTasks = await remote.fetchAll();
     final localTasks = local.getAllTasks();

@@ -16,8 +16,6 @@ class TaskProvider extends ChangeNotifier {
     _loadTasks();
     pullFromServer();
 
-    // Automatically push any pending offline changes as soon as the
-    // connection comes back, instead of waiting for the next manual action.
     _connectivitySubscription = NetworkChecker.onConnectivityChanged.listen((
       isOnline,
     ) {
@@ -74,15 +72,12 @@ class TaskProvider extends ChangeNotifier {
 
   List<Task> get completedTasks => _sortedTasks.where((t) => t.isDone).toList();
 
-  /// Saves locally (fast) and returns right away - the network push to
-  /// the server happens afterwards in the background, so the UI never
-  /// waits on it.
   Future<bool> addTask(Task task) async {
     try {
       final newTask = await repository.addTask(task);
       _tasks.add(newTask);
       notifyListeners();
-      syncPendingTasks(); // fire-and-forget background sync
+      syncPendingTasks();
       _updateReminderFor(newTask);
       return true;
     } catch (e) {
@@ -99,7 +94,7 @@ class TaskProvider extends ChangeNotifier {
       debugPrint("Failed to toggle task: $e");
     } finally {
       notifyListeners();
-      syncPendingTasks(); // fire-and-forget background sync
+      syncPendingTasks();
     }
   }
 
@@ -114,7 +109,7 @@ class TaskProvider extends ChangeNotifier {
       return false;
     } finally {
       notifyListeners();
-      syncPendingTasks(); // fire-and-forget background sync
+      syncPendingTasks();
     }
   }
 
@@ -128,13 +123,10 @@ class TaskProvider extends ChangeNotifier {
       return false;
     } finally {
       notifyListeners();
-      syncPendingTasks(); // fire-and-forget background sync
+      syncPendingTasks();
     }
   }
 
-  /// Pushes any locally pending (unsynced) changes to the server. Called
-  /// automatically when connectivity is restored or right after a local
-  /// change, but safe to call manually too (e.g. pull-to-refresh).
   Future<void> syncPendingTasks() async {
     try {
       await repository.syncPendingTasks();

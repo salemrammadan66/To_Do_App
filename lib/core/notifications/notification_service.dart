@@ -5,8 +5,6 @@ import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter/foundation.dart';
 
-/// Wraps flutter_local_notifications to schedule/cancel a single reminder
-/// per task, fired at the task's deadline.
 class NotificationService {
   NotificationService._();
 
@@ -43,10 +41,6 @@ class NotificationService {
     _initialized = true;
   }
 
-  /// Schedules a reminder for [deadline]. Uses "inexact" scheduling so it
-  /// doesn't require the special "Alarms & reminders" permission - the
-  /// notification may arrive a few minutes late in rare cases, which is
-  /// fine for a to-do reminder.
   static Future<void> scheduleTaskReminder({
     required int id,
     required String title,
@@ -56,7 +50,6 @@ class NotificationService {
     final now = tz.TZDateTime.now(tz.local);
     debugPrint("SCHEDULING for $scheduledDate (now is $now)");
 
-    // Don't schedule a reminder for a deadline that's already in the past.
     if (scheduledDate.isBefore(now)) {
       debugPrint("SKIPPED: deadline is in the past relative to now");
       return;

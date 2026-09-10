@@ -99,7 +99,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ],
             const SizedBox(height: 24),
-            // new_str
             AppPrimaryButton(
               text: "Save changes",
               isLoading: authProvider.isLoading,
@@ -131,6 +130,22 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 );
               },
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: AppTextActionButton(
+                text: "Log out",
+                color: Colors.red,
+                onPressed: () async {
+                  final navigator = Navigator.of(context);
+                  await context.read<AuthProvider>().logout();
+                  if (!context.mounted) return;
+                  navigator.pushNamedAndRemoveUntil(
+                    "welcome",
+                        (route) => false,
+                  );
+                },
+              ),
             ),
           ],
         ),

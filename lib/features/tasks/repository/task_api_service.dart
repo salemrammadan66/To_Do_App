@@ -7,8 +7,6 @@ class TaskApiService {
 
   TaskApiService(this._client);
 
-  // The backend only knows about "title" and "completed" - it has no
-  // concept of priority or deadline, so those never get sent.
   Future<Map<String, dynamic>> createTask(Task task) {
     return _client.post(
       ApiConstants.tasksEndpoint,

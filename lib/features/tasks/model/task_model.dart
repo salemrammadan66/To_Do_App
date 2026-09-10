@@ -28,6 +28,9 @@ class Task extends HiveObject {
   @HiveField(7)
   DateTime updatedAt;
 
+  @HiveField(8, defaultValue: 0)
+  int avatarId;
+
   Task({
     this.id,
     required this.title,
@@ -37,5 +40,6 @@ class Task extends HiveObject {
     this.isSynced = false,
     this.isDeleted = false,
     required this.updatedAt,
+    this.avatarId = 0,
   });
 }

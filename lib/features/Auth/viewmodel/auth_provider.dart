@@ -15,9 +15,6 @@ class AuthProvider extends ChangeNotifier {
   String? token;
   Failure? failure;
 
-  /// Kept the same old name (error) so the login/signin pages don't need
-  /// to change, but now it's backed by a real Failure instead of a
-  /// manually-built String.
   String? get error => failure?.message;
 
   AuthProvider(this._client) {
@@ -128,5 +125,17 @@ class AuthProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> logout() async {
+    final box = await Hive.openBox('authBox');
+    await box.delete('token');
+
+    _client.clearToken();
+    token = null;
+    user = null;
+    failure = null;
+
+    notifyListeners();
   }
 }
