@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:to_do_app/core/theme/app_colors.dart';
 
 class TaskCard extends StatefulWidget {
+  final int index;
   final String title;
   final int priority;
   final dynamic deadline;
@@ -13,6 +14,7 @@ class TaskCard extends StatefulWidget {
 
   const TaskCard({
     super.key,
+    required this.index,
     required this.title,
     required this.deadline,
     required this.priority,
@@ -71,51 +73,73 @@ class _TaskCardState extends State<TaskCard> {
     }
   }
 
+  Color get _cardColor =>
+      AppColors.cardPalette[widget.index % AppColors.cardPalette.length];
+
+  @override
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onEdit,
       onLongPress: widget.onDelete,
-      child: Card(
-        elevation: 5,
-        color: AppColors.toDoCardColor,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: _cardColor,
+          borderRadius: BorderRadius.circular(22),
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                IconButton(
-                  //done button
-                  onPressed: widget.onToggleDone,
-                  icon: Icon(
-                    widget.isDone ? Icons.check_circle : Icons.circle_outlined,
-                    color: widget.isDone
-                        ? AppColors.checkedTaskColor
-                        : Colors.grey,
+            Expanded(
+              child: Row(
+                children: [
+                  Checkbox(
+                    value: widget.isDone,
+                    onChanged: (_) => widget.onToggleDone?.call(),
+                    activeColor: AppColors.checkedTaskColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                   ),
-                ),
-                Text(
-                  widget.title,
-                  style: TextStyle(color: AppColors.fontColor, fontSize: 16),
-                ),
-                if (!widget.isSynced)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 6),
-                    child: Icon(Icons.cloud_off, size: 16, color: Colors.grey),
+                  Expanded(
+                    child: Text(
+                      widget.title,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: AppColors.cardTextColor,
+                        fontSize: 16,
+                        decoration: widget.isDone
+                            ? TextDecoration.lineThrough
+                            : null,
+                        decorationColor: AppColors.cardTextColor,
+                      ),
+                    ),
                   ),
-              ],
+                  if (!widget.isSynced)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 6),
+                      child: Icon(
+                        Icons.cloud_off,
+                        size: 16,
+                        color: AppColors.cardSubTextColor,
+                      ),
+                    ),
+                ],
+              ),
             ),
             Padding(
-              padding: EdgeInsets.only(right: 15),
+              padding: const EdgeInsets.only(right: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    _formatDeadline(context), //deadline date + time
+                    _formatDeadline(context),
                     style: TextStyle(
                       color: _isOverdue
                           ? Colors.redAccent
-                          : AppColors.fontColor,
+                          : AppColors.cardSubTextColor,
                       fontSize: 12,
                       fontWeight: _isOverdue
                           ? FontWeight.bold
@@ -124,8 +148,11 @@ class _TaskCardState extends State<TaskCard> {
                   ),
                   Text(
                     getPriorityName(widget.priority),
-                    style: TextStyle(color: AppColors.fontColor),
-                  ), //priority
+                    style: TextStyle(
+                      color: AppColors.cardSubTextColor,
+                      fontSize: 12,
+                    ),
+                  ),
                 ],
               ),
             ),

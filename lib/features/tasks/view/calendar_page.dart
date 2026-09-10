@@ -31,9 +31,8 @@ class _CalendarPageState extends State<CalendarPage> {
   List<Task> _tasksForDay(DateTime day, List<Task> tasks) {
     return tasks
         .where(
-          (t) =>
-      t.deadline != null && _dateOnly(t.deadline!) == _dateOnly(day),
-    )
+          (t) => t.deadline != null && _dateOnly(t.deadline!) == _dateOnly(day),
+        )
         .toList();
   }
 
@@ -49,7 +48,7 @@ class _CalendarPageState extends State<CalendarPage> {
         return Scaffold(
           backgroundColor: AppColors.bodyColor,
           appBar: AppBar(
-            backgroundColor: AppColors.appBarColor,
+            backgroundColor: AppColors.bodyColor,
             iconTheme: IconThemeData(color: AppColors.fontColor),
             title: Text(
               "Calendar",
@@ -126,52 +125,53 @@ class _CalendarPageState extends State<CalendarPage> {
               Expanded(
                 child: selectedTasks.isEmpty
                     ? Center(
-                  child: Text(
-                    "No tasks on this day",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                )
+                        child: Text(
+                          "No tasks on this day",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      )
                     : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: selectedTasks.length,
-                  itemBuilder: (context, index) {
-                    final task = selectedTasks[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: TaskCard(
-                        title: task.title,
-                        priority: task.priority,
-                        deadline: task.deadline,
-                        isDone: task.isDone,
-                        isSynced: task.isSynced,
-                        onToggleDone: () {
-                          taskProvider.toggleTaskDone(task);
-                        },
-                        onEdit: () {
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor:
-                            AppColors.bottomSheetBacgroundColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(25),
-                              ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: selectedTasks.length,
+                        itemBuilder: (context, index) {
+                          final task = selectedTasks[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: TaskCard(
+                              index: index,
+                              title: task.title,
+                              priority: task.priority,
+                              deadline: task.deadline,
+                              isDone: task.isDone,
+                              isSynced: task.isSynced,
+                              onToggleDone: () {
+                                taskProvider.toggleTaskDone(task);
+                              },
+                              onEdit: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor:
+                                      AppColors.bottomSheetBacgroundColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(25),
+                                    ),
+                                  ),
+                                  builder: (context) {
+                                    return BottomsheetAddnewtodo(
+                                      existingTask: task,
+                                    );
+                                  },
+                                );
+                              },
+                              onDelete: () {
+                                taskProvider.deleteTask(task);
+                              },
                             ),
-                            builder: (context) {
-                              return BottomsheetAddnewtodo(
-                                existingTask: task,
-                              );
-                            },
                           );
                         },
-                        onDelete: () {
-                          taskProvider.deleteTask(task);
-                        },
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           ),

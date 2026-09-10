@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/theme_provider.dart';
+import '../../../core/widgets/app_buttons.dart';
 import '../viewmodel/auth_provider.dart';
 import 'Cutomized_Widgets/login_page_text_fields.dart';
 
@@ -20,6 +22,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>();
     return Scaffold(
       body: Stack(
         children: [
@@ -76,48 +79,27 @@ class _LoginPageState extends State<LoginPage> {
                         // Login Button
                         Consumer<AuthProvider>(
                           builder: (context, prov, child) {
-                            if (prov.isLoading) {
-                              return CircularProgressIndicator(
-                                color: AppColors.floatingBtnColor,
-                              );
-                            }
                             return Column(
                               children: [
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 50,
-                                  child: ElevatedButton(
-                                    onPressed: () async {
-                                      if (frmKey.currentState!.validate()) {
-                                        await prov.login(
-                                          emailcontroller.text,
-                                          passcontroller.text,
+                                AppPrimaryButton(
+                                  text: "Login",
+                                  isLoading: prov.isLoading,
+                                  onPressed: () async {
+                                    if (frmKey.currentState!.validate()) {
+                                      await prov.login(
+                                        emailcontroller.text,
+                                        passcontroller.text,
+                                      );
+                                      if (prov.error == null) {
+                                        if (!context.mounted) return;
+                                        Navigator.pushNamedAndRemoveUntil(
+                                          context,
+                                          "home",
+                                              (Route<dynamic> route) => false,
                                         );
-                                        if (prov.error == null) {
-                                          if (!context.mounted) return;
-                                          Navigator.pushNamedAndRemoveUntil(
-                                            context,
-                                            "home",
-                                            (Route<dynamic> route) => false,
-                                          );
-                                        }
                                       }
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          AppColors.floatingBtnColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      "Login",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
+                                    }
+                                  },
                                 ),
                                 if (prov.error != null)
                                   Padding(
@@ -138,14 +120,12 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 10),
 
                   // Forgot Password
-                  TextButton(
+                  AppTextActionButton(
+                    text: "Forgot Password?",
+                    color: Colors.grey,
                     onPressed: () {
                       // TODO: Navigate to Password Change
                     },
-                    child: const Text(
-                      "Forgot Password?",
-                      style: TextStyle(color: Colors.grey),
-                    ),
                   ),
                 ],
               ),

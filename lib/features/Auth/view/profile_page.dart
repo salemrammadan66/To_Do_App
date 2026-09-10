@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/theme_provider.dart';
+import '../../../core/widgets/app_buttons.dart';
+import '../../../core/widgets/app_text_field.dart';
 import '../viewmodel/auth_provider.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -29,21 +32,9 @@ class _ProfilePageState extends State<ProfilePage> {
     return Text(text, style: const TextStyle(color: Colors.grey));
   }
 
-  InputDecoration _fieldDecoration({String? hint}) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: Colors.grey),
-      filled: true,
-      fillColor: AppColors.toDoCardColor,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>();
     final authProvider = context.watch<AuthProvider>();
 
     if (!_loadedOnce) {
@@ -62,7 +53,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       backgroundColor: AppColors.bodyColor,
       appBar: AppBar(
-        backgroundColor: AppColors.appBarColor,
+        backgroundColor: AppColors.bodyColor,
         iconTheme: IconThemeData(color: AppColors.fontColor),
         title: Text("Profile", style: TextStyle(color: AppColors.fontColor)),
       ),
@@ -79,30 +70,26 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             _fieldLabel("Name"),
             const SizedBox(height: 6),
-            TextField(
+            AppTextField(
               controller: nameController,
-              style: const TextStyle(color: Colors.white),
-              decoration: _fieldDecoration(),
+              borderRadius: 12,
             ),
             const SizedBox(height: 16),
             _fieldLabel("Email"),
             const SizedBox(height: 6),
-            TextField(
+            AppTextField(
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
-              style: const TextStyle(color: Colors.white),
-              decoration: _fieldDecoration(),
+              borderRadius: 12,
             ),
             const SizedBox(height: 16),
             _fieldLabel("New password"),
             const SizedBox(height: 6),
-            TextField(
+            AppTextField(
               controller: passwordController,
-              obscureText: true,
-              style: const TextStyle(color: Colors.white),
-              decoration: _fieldDecoration(
-                hint: "Leave empty to keep current password",
-              ),
+              isPassword: true,
+              borderRadius: 12,
+              hintText: "Leave empty to keep current password",
             ),
             if (authProvider.error != null) ...[
               const SizedBox(height: 12),
@@ -112,59 +99,38 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ],
             const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.saveBtnColor,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                onPressed: authProvider.isLoading
-                    ? null
-                    : () async {
-                  final messenger = ScaffoldMessenger.of(context);
-                  final provider = context.read<AuthProvider>();
+            // new_str
+            AppPrimaryButton(
+              text: "Save changes",
+              isLoading: authProvider.isLoading,
+              backgroundColor: AppColors.saveBtnColor,
+              height: 48,
+              onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                final provider = context.read<AuthProvider>();
 
-                  final success = await provider.updateProfile(
-                    name: nameController.text,
-                    email: emailController.text,
-                    password: passwordController.text,
-                  );
+                final success = await provider.updateProfile(
+                  name: nameController.text,
+                  email: emailController.text,
+                  password: passwordController.text,
+                );
 
-                  if (!context.mounted) return;
+                if (!context.mounted) return;
 
-                  passwordController.clear();
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        success
-                            ? "Profile updated"
-                            : (provider.error ??
-                            "Something went wrong"),
-                      ),
-                      backgroundColor: success
-                          ? AppColors.checkedTaskColor
-                          : Colors.red,
+                passwordController.clear();
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      success
+                          ? "Profile updated"
+                          : (provider.error ?? "Something went wrong"),
                     ),
-                  );
-                },
-                child: authProvider.isLoading
-                    ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.black,
+                    backgroundColor: success
+                        ? AppColors.checkedTaskColor
+                        : Colors.red,
                   ),
-                )
-                    : const Text(
-                  "Save changes",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+                );
+              },
             ),
           ],
         ),

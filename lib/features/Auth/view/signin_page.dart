@@ -5,6 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/theme_provider.dart';
+import '../../../core/widgets/app_buttons.dart';
+import '../../../core/widgets/app_text_field.dart';
 import '../viewmodel/auth_provider.dart';
 import 'Cutomized_Widgets/login_page_text_fields.dart';
 
@@ -23,6 +26,7 @@ class _SigninPageState extends State<SigninPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>();
     return Scaffold(
       body: Stack(
         children: [
@@ -60,25 +64,20 @@ class _SigninPageState extends State<SigninPage> {
                     child: Column(
                       children: [
                         //name
-                        TextField(
+                        AppTextField(
                           controller: namecontroller,
-                          cursorColor: Colors.white,
-                          style: const TextStyle(color: Colors.white),
+                          hintText: "Name",
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(
                               RegExp(r'[a-zA-Z\s]'),
                             ),
                           ],
-                          decoration: InputDecoration(
-                            hintText: "Name",
-                            hintStyle: const TextStyle(color: Colors.grey),
-                            filled: true,
-                            fillColor: AppColors.toDoCardColor,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "This field is required";
+                            }
+                            return null;
+                          },
                         ),
 
                         const SizedBox(height: 15),
@@ -103,49 +102,28 @@ class _SigninPageState extends State<SigninPage> {
                         // SignIn Button
                         Consumer<AuthProvider>(
                           builder: (context, prov, child) {
-                            if (prov.isLoading) {
-                              return CircularProgressIndicator(
-                                color: AppColors.floatingBtnColor,
-                              );
-                            }
                             return Column(
                               children: [
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 50,
-                                  child: ElevatedButton(
-                                    onPressed: () async {
-                                      if (frmKey.currentState!.validate()) {
-                                        await prov.register(
-                                          namecontroller.text,
-                                          emailcontroller.text,
-                                          passcontroller.text,
+                                AppPrimaryButton(
+                                  text: "SignIn",
+                                  isLoading: prov.isLoading,
+                                  onPressed: () async {
+                                    if (frmKey.currentState!.validate()) {
+                                      await prov.register(
+                                        namecontroller.text,
+                                        emailcontroller.text,
+                                        passcontroller.text,
+                                      );
+                                      if (prov.error == null) {
+                                        if (!context.mounted) return;
+                                        Navigator.pushNamedAndRemoveUntil(
+                                          context,
+                                          "home",
+                                              (Route<dynamic> route) => false,
                                         );
-                                        if (prov.error == null) {
-                                          if (!context.mounted) return;
-                                          Navigator.pushNamedAndRemoveUntil(
-                                            context,
-                                            "home",
-                                            (Route<dynamic> route) => false,
-                                          );
-                                        }
                                       }
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          AppColors.floatingBtnColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      "SignIn",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
+                                    }
+                                  },
                                 ),
                                 if (prov.error != null)
                                   Padding(
@@ -166,15 +144,12 @@ class _SigninPageState extends State<SigninPage> {
                   const SizedBox(height: 10),
 
                   // Forgot Password
-                  TextButton(
+                  AppTextActionButton(
+                    text: "Already have an account?",
+                    color: Colors.grey,
                     onPressed: () {
-                      // TODO: Navigate to Login
                       Navigator.pushNamed(context, "login");
                     },
-                    child: const Text(
-                      "Already have an account?",
-                      style: TextStyle(color: Colors.grey),
-                    ),
                   ),
                 ],
               ),

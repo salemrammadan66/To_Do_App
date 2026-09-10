@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/theme_provider.dart';
 import 'bottom_sheet_add_new_todo.dart';
 
 class FloatingActionBtn extends StatefulWidget{
@@ -13,6 +15,7 @@ class FloatingActionBtn extends StatefulWidget{
 class _FloatingActionBtnState extends State<FloatingActionBtn>{
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>();
     return FloatingActionButton(
       backgroundColor: AppColors.floatingBtnColor,
       onPressed: () {

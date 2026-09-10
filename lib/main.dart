@@ -6,11 +6,13 @@ import 'package:provider/provider.dart';
 import 'core/network/api_client.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/theme/app_colors.dart';
+import 'core/theme/theme_provider.dart';
 import 'features/Auth/view/login_page.dart';
 import 'features/Auth/view/profile_page.dart';
 import 'features/Auth/view/signin_page.dart';
 import 'features/Auth/view/welcome.dart';
 import 'features/Auth/viewmodel/auth_provider.dart';
+import 'features/settings/view/settings_page.dart';
 import 'features/tasks/model/task_model.dart';
 import 'features/tasks/repository/task_remote_data_source.dart';
 import 'features/tasks/repository/task_api_service.dart';
@@ -41,7 +43,7 @@ void main() async {
   final remoteDS = TaskRemoteDataSource(apiService);
   final repository = TaskRepository(local: localDS, remote: remoteDS);
 
-  // Check whether the user has already logged in and has a saved token
+  // new_str
   final authBox = await Hive.openBox('authBox');
   final savedToken = authBox.get('token');
   final bool isLoggedIn = savedToken != null;
@@ -50,11 +52,16 @@ void main() async {
     apiClient.setToken(savedToken);
   }
 
+  // تحميل الثيم المحفوظ (Dark افتراضيًا)
+  final settingsBox = await Hive.openBox('settingsBox');
+  AppColors.isDark = settingsBox.get('isDark', defaultValue: true);
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TaskProvider(repository)),
         ChangeNotifierProvider(create: (_) => AuthProvider(apiClient)),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: MyApp(initialRoute: isLoggedIn ? "home" : "welcome"),
     ),
@@ -84,6 +91,7 @@ class _MyAppState extends State<MyApp> {
         "welcome": (context) => Welcome(),
         "profile": (context) => ProfilePage(),
         "calendar": (context) => CalendarPage(),
+        "settings": (context) => SettingsPage(),
       },
     );
   }

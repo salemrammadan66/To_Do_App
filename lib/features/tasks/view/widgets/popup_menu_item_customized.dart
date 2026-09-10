@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/theme_provider.dart';
 import '../../viewmodel/prov.dart';
 
 class PopupmenuitemCustomized extends StatefulWidget {
@@ -15,11 +16,12 @@ class PopupmenuitemCustomized extends StatefulWidget {
 class _PopupmenuitemCustomizedState extends State<PopupmenuitemCustomized> {
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>();
     return PopupMenuButton(
       menuPadding: EdgeInsets.all(15),
       style: ButtonStyle(alignment: Alignment.centerLeft),
-      iconColor: Colors.white,
-      color: AppColors.toDoCardColor,
+      iconColor: AppColors.fontColor,
+      color: AppColors.searchBarColor,
       itemBuilder: (context) => [
         PopupMenuItem(
           onTap: () {
@@ -29,6 +31,18 @@ class _PopupmenuitemCustomizedState extends State<PopupmenuitemCustomized> {
           },
           child: Text(
             "Profile",
+            style: TextStyle(color: AppColors.fontColor),
+          ),
+        ),
+        // new_str
+        PopupMenuItem(
+          onTap: () {
+            Future.delayed(Duration.zero, () {
+              Navigator.of(context).pushNamed("settings");
+            });
+          },
+          child: Text(
+            "Settings",
             style: TextStyle(color: AppColors.fontColor),
           ),
         ),

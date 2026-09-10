@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_buttons.dart';
+import '../../../../core/widgets/app_text_field.dart';
 import '../../model/task_model.dart';
 import '../../viewmodel/prov.dart';
 import 'package:provider/provider.dart';
@@ -35,12 +37,12 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
         colorScheme: ColorScheme.dark(
           primary: AppColors.floatingBtnColor,
           onPrimary: Colors.black,
-          surface: AppColors.toDoCardColor,
+          surface: AppColors.searchBarColor,
           onSurface: AppColors.fontColor,
         ),
-        dialogTheme: DialogThemeData(backgroundColor: AppColors.toDoCardColor),
+        dialogTheme: DialogThemeData(backgroundColor: AppColors.searchBarColor),
         timePickerTheme: TimePickerThemeData(
-          backgroundColor: AppColors.toDoCardColor,
+          backgroundColor: AppColors.searchBarColor,
           dialBackgroundColor: AppColors.bottomSheetBacgroundColor,
           dialHandColor: AppColors.floatingBtnColor,
           hourMinuteColor: WidgetStateColor.resolveWith(
@@ -110,11 +112,9 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              MaterialButton(
-                child: Text(
-                  "Cancel",
-                  style: TextStyle(color: AppColors.cancelBtnColor),
-                ),
+              AppTextActionButton(
+                text: "Cancel",
+                color: AppColors.cancelBtnColor,
                 onPressed: () {
                   //close bottomsheet
                   Navigator.pop(context);
@@ -129,13 +129,10 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                 ),
               ),
 
-              MaterialButton(
-                child: Text(
-                  "Save",
-                  style: TextStyle(
-                    color: isFormValid ? AppColors.saveBtnColor : Colors.grey,
-                  ),
-                ),
+              // new_str
+              AppTextActionButton(
+                text: "Save",
+                color: isFormValid ? AppColors.saveBtnColor : Colors.grey,
                 onPressed: !isFormValid
                     ? null
                     : () async {
@@ -193,31 +190,21 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
           ),
 
           // Text Field
-          TextField(
+          AppTextField(
             focusNode: textFieldFocus,
             //keyboard issue
             onTapOutside: (event) {
               textFieldFocus.unfocus();
             },
             autofocus: true,
-            cursorColor: Colors.white,
             controller: controller,
+            hintText: "New to-do",
+            borderRadius: 12,
             onChanged: (val) {
               setState(() {
                 textFieldIsEmpty = val.isNotEmpty;
               });
             },
-            style: TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              hintText: "New to-do",
-              hintStyle: TextStyle(color: Colors.grey),
-              filled: true,
-              fillColor: AppColors.toDoCardColor,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-            ),
           ),
 
           Text("Choose Priority", style: TextStyle(color: AppColors.fontColor)),
@@ -276,7 +263,7 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                       },
                       icon: Icon(
                         Icons.notifications_none_outlined,
-                        color: Colors.white,
+                        color: AppColors.fontColor,
                       ),
                     ),
                     if (selectedDateTime != null)

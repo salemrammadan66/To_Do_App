@@ -1,8 +1,11 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/theme_provider.dart';
+import '../../../core/widgets/app_buttons.dart';
 import 'Cutomized_Widgets/info_for_welcome.dart';
 
 class Welcome extends StatefulWidget {
@@ -17,6 +20,7 @@ class _WelcomeState extends State<Welcome> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>();
     return Scaffold(
       body: Stack(
         children: [
@@ -53,34 +57,20 @@ class _WelcomeState extends State<Welcome> {
             child: Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: AppOutlinedButton(
+                    text: "Register",
                     onPressed: () {
                       Navigator.pushNamed(context, "register");
                     },
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.white),
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Text(
-                      'Register',
-                      style: TextStyle(color: Colors.white),
-                    ),
                   ),
                 ),
                 SizedBox(width: 20),
                 Expanded(
-                  child: ElevatedButton(
+                  child: AppPrimaryButton(
+                    text: "Log In",
                     onPressed: () {
                       Navigator.pushNamed(context, "login");
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.floatingBtnColor,
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Text(
-                      'Log In',
-                      style: TextStyle(color: Colors.white),
-                    ),
                   ),
                 ),
               ],
