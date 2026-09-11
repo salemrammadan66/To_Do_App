@@ -1,34 +1,46 @@
 import 'package:flutter/material.dart';
 
-enum EarStyle { round, pointy, long, none }
-
-enum FaceMark { none, whiskers, blush, beak }
-
 class CuteAvatarData {
   final int id;
-  final Color background;
-  final EarStyle earStyle;
-  final FaceMark mark;
+  final String assetPath;
 
   const CuteAvatarData({
     required this.id,
-    required this.background,
-    this.earStyle = EarStyle.round,
-    this.mark = FaceMark.none,
+    required this.assetPath,
   });
 }
 
-/// كتالوج كل الأشكال المتاحة للاختيار — ضيف/شيل/غيّر ألوان براحتك هنا
+const String _basePath = 'assets/cute_avatars';
+
+/// كتالوج كل الأشكال المتاحة للاختيار
 const List<CuteAvatarData> kCuteAvatars = [
-  CuteAvatarData(id: 0, background: Color(0xFFF2C9A5), mark: FaceMark.blush), // hamster
-  CuteAvatarData(id: 1, background: Color(0xFFE8C99B)), // bear
-  CuteAvatarData(id: 2, background: Color(0xFFE4D9F0), earStyle: EarStyle.pointy, mark: FaceMark.whiskers), // cat
-  CuteAvatarData(id: 3, background: Color(0xFFCDEAF5), earStyle: EarStyle.long), // bunny
-  CuteAvatarData(id: 4, background: Color(0xFFF3F3F3)), // panda
-  CuteAvatarData(id: 5, background: Color(0xFFF6C9D2), earStyle: EarStyle.pointy, mark: FaceMark.whiskers), // pink cat
-  CuteAvatarData(id: 6, background: Color(0xFF3A3A3A), earStyle: EarStyle.pointy, mark: FaceMark.whiskers), // dark cat
-  CuteAvatarData(id: 7, background: Color(0xFFF8D46B), earStyle: EarStyle.none, mark: FaceMark.beak), // chick
-  CuteAvatarData(id: 8, background: Color(0xFFE99B6B), earStyle: EarStyle.none), // fox
+  CuteAvatarData(id: 0, assetPath: '$_basePath/bat.png'),
+  CuteAvatarData(id: 1, assetPath: '$_basePath/bear.png'),
+  CuteAvatarData(id: 2, assetPath: '$_basePath/bee.png'),
+  CuteAvatarData(id: 3, assetPath: '$_basePath/butterfly.png'),
+  CuteAvatarData(id: 4, assetPath: '$_basePath/cat.png'),
+  CuteAvatarData(id: 5, assetPath: '$_basePath/cool.png'),
+  CuteAvatarData(id: 6, assetPath: '$_basePath/crow.png'),
+  CuteAvatarData(id: 7, assetPath: '$_basePath/dinosaur.png'),
+  CuteAvatarData(id: 8, assetPath: '$_basePath/dog.png'),
+  CuteAvatarData(id: 9, assetPath: '$_basePath/dragon.png'),
+  CuteAvatarData(id: 10, assetPath: '$_basePath/elephant.png'),
+  CuteAvatarData(id: 11, assetPath: '$_basePath/frog.png'),
+  CuteAvatarData(id: 12, assetPath: '$_basePath/hippopotamus.png'),
+  CuteAvatarData(id: 13, assetPath: '$_basePath/kitty.png'),
+  CuteAvatarData(id: 14, assetPath: '$_basePath/koala.png'),
+  CuteAvatarData(id: 15, assetPath: '$_basePath/monkey.png'),
+  CuteAvatarData(id: 16, assetPath: '$_basePath/owl.png'),
+  CuteAvatarData(id: 17, assetPath: '$_basePath/panda.png'),
+  CuteAvatarData(id: 18, assetPath: '$_basePath/penguin.png'),
+  CuteAvatarData(id: 19, assetPath: '$_basePath/rat.png'),
+  CuteAvatarData(id: 20, assetPath: '$_basePath/smiling.png'),
+  CuteAvatarData(id: 21, assetPath: '$_basePath/snail.png'),
+  CuteAvatarData(id: 22, assetPath: '$_basePath/starfish.png'),
+  CuteAvatarData(id: 23, assetPath: '$_basePath/stingray.png'),
+  CuteAvatarData(id: 24, assetPath: '$_basePath/teddy-bear.png'),
+  CuteAvatarData(id: 25, assetPath: '$_basePath/whale.png'),
+  CuteAvatarData(id: 26, assetPath: '$_basePath/kitty2.png'),
 ];
 
 CuteAvatarData avatarById(int id) =>
@@ -51,118 +63,14 @@ class CuteAvatar extends StatelessWidget {
     return Container(
       width: size,
       height: size,
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         border: selected
             ? Border.all(color: Colors.orangeAccent, width: 2)
             : null,
         borderRadius: BorderRadius.circular(size * 0.3),
       ),
-      child: CustomPaint(
-        size: Size(size, size),
-        painter: _CuteFacePainter(data),
-      ),
+      child: Image.asset(data.assetPath, fit: BoxFit.contain),
     );
   }
-}
-
-class _CuteFacePainter extends CustomPainter {
-  final CuteAvatarData data;
-  _CuteFacePainter(this.data);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final s = size.shortestSide;
-    final bgPaint = Paint()..color = data.background;
-    final blackPaint = Paint()..color = Colors.black87;
-    final radius = s * 0.26;
-    final rrect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      Radius.circular(radius),
-    );
-
-    // آذان (بترسم الأول عشان تبان وراء الجسم)
-    switch (data.earStyle) {
-      case EarStyle.round:
-        canvas.drawCircle(Offset(s * 0.18, s * 0.14), s * 0.14, bgPaint);
-        canvas.drawCircle(Offset(s * 0.82, s * 0.14), s * 0.14, bgPaint);
-        break;
-      case EarStyle.pointy:
-        _drawTriangle(canvas, bgPaint, Offset(s * 0.2, 0), s * 0.16);
-        _drawTriangle(canvas, bgPaint, Offset(s * 0.8, 0), s * 0.16);
-        break;
-      case EarStyle.long:
-        canvas.drawOval(
-          Rect.fromCenter(center: Offset(s * 0.28, -s * 0.05), width: s * 0.14, height: s * 0.32),
-          bgPaint,
-        );
-        canvas.drawOval(
-          Rect.fromCenter(center: Offset(s * 0.72, -s * 0.05), width: s * 0.14, height: s * 0.32),
-          bgPaint,
-        );
-        break;
-      case EarStyle.none:
-        break;
-    }
-
-    // الجسم (المربع الدائري) فوق الآذان
-    canvas.drawRRect(rrect, bgPaint);
-
-    // العينين
-    canvas.drawCircle(Offset(s * 0.36, s * 0.5), s * 0.045, blackPaint);
-    canvas.drawCircle(Offset(s * 0.64, s * 0.5), s * 0.045, blackPaint);
-
-    // العلامة المميزة (شوارب/خدود/منقار)
-    switch (data.mark) {
-      case FaceMark.blush:
-        final blushPaint = Paint()
-          ..color = Colors.pinkAccent.withValues(alpha: 0.5);
-        canvas.drawCircle(Offset(s * 0.28, s * 0.62), s * 0.06, blushPaint);
-        canvas.drawCircle(Offset(s * 0.72, s * 0.62), s * 0.06, blushPaint);
-        break;
-      case FaceMark.whiskers:
-        final whiskerPaint = Paint()
-          ..color = Colors.black45
-          ..strokeWidth = 1.2;
-        for (final dy in [-0.04, 0.0, 0.04]) {
-          canvas.drawLine(
-            Offset(s * 0.05, s * (0.58 + dy)),
-            Offset(s * 0.24, s * (0.58 + dy)),
-            whiskerPaint,
-          );
-          canvas.drawLine(
-            Offset(s * 0.76, s * (0.58 + dy)),
-            Offset(s * 0.95, s * (0.58 + dy)),
-            whiskerPaint,
-          );
-        }
-        break;
-      case FaceMark.beak:
-        final beakPaint = Paint()..color = Colors.orange;
-        _drawTriangle(canvas, beakPaint, Offset(s * 0.5, s * 0.56), s * 0.1, pointDown: true);
-        break;
-      case FaceMark.none:
-        break;
-    }
-  }
-
-  void _drawTriangle(Canvas canvas, Paint paint, Offset top, double width, {bool pointDown = false}) {
-    final path = Path();
-    if (!pointDown) {
-      path
-        ..moveTo(top.dx - width / 2, top.dy + width)
-        ..lineTo(top.dx + width / 2, top.dy + width)
-        ..lineTo(top.dx, top.dy);
-    } else {
-      path
-        ..moveTo(top.dx - width / 2, top.dy)
-        ..lineTo(top.dx + width / 2, top.dy)
-        ..lineTo(top.dx, top.dy + width);
-    }
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _CuteFacePainter oldDelegate) =>
-      oldDelegate.data != data;
 }

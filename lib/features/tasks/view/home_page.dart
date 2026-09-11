@@ -8,6 +8,7 @@ import 'widgets/bottom_sheet_add_new_todo.dart';
 import 'widgets/completed_section_header.dart';
 import 'widgets/floating_action_button.dart';
 import 'widgets/popup_menu_item_customized.dart';
+import 'widgets/progress_card.dart';
 import 'widgets/search_bar_customized.dart';
 import 'widgets/task_card.dart';
 
@@ -237,8 +238,9 @@ class _HomePageState extends State<Homepage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                ProgressCard(),
+                SizedBox(height: 20),
                 SearchbarCustomized(),
-
                 SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
