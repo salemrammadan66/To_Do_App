@@ -9,12 +9,14 @@ class AppColors {
   static const Color _fontColorDark = Color(0xFFffffff);
   static const Color _bottomSheetBacgroundColorDark = Color(0xFF1f1f1f);
   static const Color _searchBarColorDark = Color(0xFF2f2f2f);
+  static const Color _swipeDeleteBgDark = Color(0xFF4A2A2A);
 
   static const Color _appBarColorLight = Color(0xFFFFFFFF);
   static const Color _bodyColorLight = Color(0xFFF7F5F2);
   static const Color _fontColorLight = Color(0xFF1A1A1A);
   static const Color _bottomSheetBacgroundColorLight = Color(0xFFFFFFFF);
   static const Color _searchBarColorLight = Color(0xFFEDE7DD);
+  static const Color _swipeDeleteBgLight = Color(0xFFF8DCDC);
 
   static Color get appBarColor => isDark ? _appBarColorDark : _appBarColorLight;
 
@@ -27,6 +29,9 @@ class AppColors {
 
   static Color get searchBarColor =>
       isDark ? _searchBarColorDark : _searchBarColorLight;
+
+  static Color get swipeDeleteBackground =>
+      isDark ? _swipeDeleteBgDark : _swipeDeleteBgLight;
 
   static const Color checkColor = Color(0xFFdfa20c);
   static const Color floatingBtnColor = Color(0xFFe6a200);

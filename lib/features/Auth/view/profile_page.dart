@@ -8,6 +8,7 @@ import '../../../core/services/local_avatar_storage.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../core/widgets/app_buttons.dart';
+import '../../../core/widgets/app_snackbar.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../tasks/viewmodel/prov.dart';
 import '../viewmodel/auth_provider.dart';
@@ -304,7 +305,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 backgroundColor: AppColors.saveBtnColor,
                 height: 48,
                 onPressed: () async {
-                  final messenger = ScaffoldMessenger.of(context);
+                  final overlay = Overlay.of(context);
                   final provider = context.read<AuthProvider>();
 
                   final success = await provider.updateProfile(
@@ -316,17 +317,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   if (!context.mounted) return;
 
                   passwordController.clear();
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        success
-                            ? "Profile updated"
-                            : (provider.error ?? "Something went wrong"),
-                      ),
-                      backgroundColor: success
-                          ? AppColors.checkedTaskColor
-                          : Colors.red,
-                    ),
+                  showAppSnackBar(
+                    overlay,
+                    success
+                        ? "Profile updated"
+                        : (provider.error ?? "Something went wrong"),
+                    type: success ? AppToastType.success : AppToastType.error,
                   );
                 },
               ),

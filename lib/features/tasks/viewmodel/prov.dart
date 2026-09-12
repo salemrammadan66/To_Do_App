@@ -113,6 +113,25 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
+
+  Future<bool> undoDeleteTask(Task task) async {
+    try {
+      task.isDeleted = false;
+      await repository.editTask(task);
+      if (!_tasks.contains(task)) {
+        _tasks.add(task);
+      }
+      _updateReminderFor(task);
+      return true;
+    } catch (e) {
+      debugPrint("Failed to undo delete: $e");
+      return false;
+    } finally {
+      notifyListeners();
+      syncPendingTasks();
+    }
+  }
+
   Future<bool> editTask(Task task) async {
     try {
       await repository.editTask(task);

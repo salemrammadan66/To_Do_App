@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_buttons.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../model/task_model.dart';
 import '../../viewmodel/prov.dart';
@@ -143,7 +144,7 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                           context,
                           listen: false,
                         );
-                        final messenger = ScaffoldMessenger.of(context);
+                        final overlay = Overlay.of(context);
                         final navigator = Navigator.of(context);
 
                         bool success;
@@ -175,17 +176,12 @@ class _BottomsheetAddnewtodoState extends State<BottomsheetAddnewtodo> {
                         if (!context.mounted) return;
 
                         navigator.pop(); //close bottomsheet
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              success
-                                  ? successMessage
-                                  : "Something went wrong, please try again",
-                            ),
-                            backgroundColor: success
-                                ? AppColors.checkedTaskColor
-                                : Colors.red,
-                          ),
+                        showAppSnackBar(
+                          overlay,
+                          success
+                              ? successMessage
+                              : "Something went wrong, please try again",
+                          type: success ? AppToastType.success : AppToastType.error,
                         );
                       },
               ),

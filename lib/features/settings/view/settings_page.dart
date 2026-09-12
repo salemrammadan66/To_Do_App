@@ -24,17 +24,6 @@ class SettingsPage extends StatelessWidget {
               Stack(
                 alignment: Alignment.center,
                 children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      onPressed: () {
-                        if (Navigator.of(context).canPop()) {
-                          Navigator.of(context).pop();
-                        }
-                      },
-                      icon: Icon(Icons.close, color: AppColors.fontColor),
-                    ),
-                  ),
                   Text(
                     "SETTINGS",
                     style: TextStyle(

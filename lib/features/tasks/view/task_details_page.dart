@@ -63,7 +63,7 @@ class TaskDetailsPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.bodyColor,
       appBar: AppBar(
-        backgroundColor: AppColors.appBarColor,
+        backgroundColor: AppColors.bodyColor,
         iconTheme: IconThemeData(color: AppColors.fontColor),
         title: Text(
           "Task Details",

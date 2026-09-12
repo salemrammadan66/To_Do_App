@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/theme_provider.dart';
 import '../model/task_model.dart';
 import '../viewmodel/prov.dart';
 import 'widgets/bottom_sheet_add_new_todo.dart';
@@ -38,6 +39,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>();
     return Consumer<TaskProvider>(
       builder: (context, taskProvider, child) {
         final allTasks = taskProvider.allTasks;
@@ -52,7 +54,7 @@ class _CalendarPageState extends State<CalendarPage> {
             iconTheme: IconThemeData(color: AppColors.fontColor),
             title: Text(
               "Calendar",
-              style: TextStyle(color: AppColors.fontColor),
+              style: TextStyle(color: AppColors.fontColor, fontWeight: FontWeight.bold,fontSize: 32),
             ),
           ),
           body: Column(
