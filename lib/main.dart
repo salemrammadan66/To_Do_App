@@ -13,6 +13,7 @@ import 'features/Auth/view/signin_page.dart';
 import 'features/Auth/view/welcome.dart';
 import 'features/Auth/viewmodel/auth_provider.dart';
 import 'features/settings/view/settings_page.dart';
+import 'features/tasks/view/root_shell.dart';
 import 'features/tasks/model/task_model.dart';
 import 'features/tasks/repository/task_remote_data_source.dart';
 import 'features/tasks/repository/task_api_service.dart';
@@ -81,7 +82,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(scaffoldBackgroundColor: AppColors.bodyColor),
       initialRoute: widget.initialRoute,
       routes: {
-        "home": (context) => Homepage(),
+        "home": (context) => RootShell(),
         "login": (context) => LoginPage(),
         "register": (context) => SigninPage(),
         "welcome": (context) => Welcome(),

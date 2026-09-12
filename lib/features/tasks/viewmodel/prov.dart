@@ -155,6 +155,8 @@ class TaskProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool get hideCompleted => _hideCompleted;
+
   void toggleHideCompleted() {
     _hideCompleted = !_hideCompleted;
     notifyListeners();

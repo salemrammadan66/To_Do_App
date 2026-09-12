@@ -12,6 +12,7 @@ class AppTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final FocusNode? focusNode;
   final List<TextInputFormatter>? inputFormatters;
+  final Widget? prefixIcon;
   final Widget? suffixIcon;
   final ValueChanged<String>? onChanged;
   final void Function(PointerDownEvent event)? onTapOutside;
@@ -27,6 +28,7 @@ class AppTextField extends StatelessWidget {
     this.keyboardType,
     this.focusNode,
     this.inputFormatters,
+    this.prefixIcon,
     this.suffixIcon,
     this.onChanged,
     this.onTapOutside,
@@ -36,6 +38,7 @@ class AppTextField extends StatelessWidget {
   InputDecoration get _decoration => InputDecoration(
     hintText: hintText,
     hintStyle: const TextStyle(color: Colors.grey),
+    prefixIcon: prefixIcon,
     suffixIcon: suffixIcon,
     filled: true,
     fillColor: AppColors.searchBarColor,

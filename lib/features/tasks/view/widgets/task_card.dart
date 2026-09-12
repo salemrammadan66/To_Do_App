@@ -15,6 +15,7 @@ class TaskCard extends StatefulWidget {
   final VoidCallback? onToggleDone;
   final VoidCallback? onDelete;
   final VoidCallback? onEdit;
+  final VoidCallback? onViewDetails;
 
   const TaskCard({
     super.key,
@@ -28,6 +29,7 @@ class TaskCard extends StatefulWidget {
     this.onToggleDone,
     this.onDelete,
     this.onEdit,
+    this.onViewDetails,
   });
 
   @override
@@ -81,90 +83,107 @@ class _TaskCardState extends State<TaskCard> {
   Color get _cardColor =>
       AppColors.cardPalette[widget.index % AppColors.cardPalette.length];
 
-  @override
+  // new_str
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onEdit,
-      onLongPress: widget.onDelete,
-      child: Container(
+    return Dismissible(
+      key: ValueKey('${widget.index}_${widget.title}'),
+      direction: DismissDirection.startToEnd,
+      confirmDismiss: (_) async {
+        widget.onDelete?.call();
+        return false;
+      },
+      background: Container(
         margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-          color: _cardColor,
+          color: Colors.red,
           borderRadius: BorderRadius.circular(22),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              // new_str
-              child: Row(
-                children: [
-                  CuteAvatar(data: avatarById(widget.avatarId), size: 30),
-                  const SizedBox(width: 6),
-                  Checkbox(
-                    value: widget.isDone,
-                    onChanged: (_) => widget.onToggleDone?.call(),
-                    activeColor: AppColors.checkedTaskColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
+        child: const Icon(Icons.delete_outline, color: Colors.white),
+      ),
+      child: GestureDetector(
+        onTap: widget.onViewDetails,
+        onLongPress: widget.onEdit,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: _cardColor,
+            borderRadius: BorderRadius.circular(22),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    CuteAvatar(data: avatarById(widget.avatarId), size: 30),
+                    const SizedBox(width: 6),
+                    Checkbox(
+                      value: widget.isDone,
+                      onChanged: (_) => widget.onToggleDone?.call(),
+                      activeColor: AppColors.checkedTaskColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      widget.title,
-                      overflow: TextOverflow.ellipsis,
+                    Expanded(
+                      child: Text(
+                        widget.title,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColors.cardTextColor,
+                          fontSize: 16,
+                          decoration: widget.isDone
+                              ? TextDecoration.lineThrough
+                              : null,
+                          decorationColor: AppColors.cardTextColor,
+                        ),
+                      ),
+                    ),
+                    if (!widget.isSynced)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: Icon(
+                          Icons.cloud_off,
+                          size: 16,
+                          color: AppColors.cardSubTextColor,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      _formatDeadline(context),
                       style: TextStyle(
-                        color: AppColors.cardTextColor,
-                        fontSize: 16,
-                        decoration: widget.isDone
-                            ? TextDecoration.lineThrough
-                            : null,
-                        decorationColor: AppColors.cardTextColor,
+                        color: _isOverdue
+                            ? Colors.redAccent
+                            : AppColors.cardSubTextColor,
+                        fontSize: 12,
+                        fontWeight: _isOverdue
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
-                  ),
-                  if (!widget.isSynced)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 6),
-                      child: Icon(
-                        Icons.cloud_off,
-                        size: 16,
+                    Text(
+                      getPriorityName(widget.priority),
+                      style: TextStyle(
                         color: AppColors.cardSubTextColor,
+                        fontSize: 12,
                       ),
                     ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    _formatDeadline(context),
-                    style: TextStyle(
-                      color: _isOverdue
-                          ? Colors.redAccent
-                          : AppColors.cardSubTextColor,
-                      fontSize: 12,
-                      fontWeight: _isOverdue
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
-                  ),
-                  Text(
-                    getPriorityName(widget.priority),
-                    style: TextStyle(
-                      color: AppColors.cardSubTextColor,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

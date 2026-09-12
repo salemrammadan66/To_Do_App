@@ -4,10 +4,10 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../core/widgets/app_buttons.dart';
 import '../viewmodel/prov.dart';
+import 'task_details_page.dart';
 import 'widgets/bottom_sheet_add_new_todo.dart';
 import 'widgets/completed_section_header.dart';
-import 'widgets/floating_action_button.dart';
-import 'widgets/popup_menu_item_customized.dart';
+import 'widgets/delete_task_dialog.dart';
 import 'widgets/progress_card.dart';
 import 'widgets/search_bar_customized.dart';
 import 'widgets/task_card.dart';
@@ -51,6 +51,7 @@ class _HomePageState extends State<Homepage> {
                   physics: NeverScrollableScrollPhysics(),
                   itemCount: completedTasks.length,
                   itemBuilder: (context, index) {
+                    // new_str
                     final task = completedTasks[index];
                     return TaskCard(
                       index: index,
@@ -60,6 +61,13 @@ class _HomePageState extends State<Homepage> {
                       deadline: task.deadline,
                       isDone: task.isDone,
                       isSynced: task.isSynced,
+                      onViewDetails: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => TaskDetailsPage(task: task),
+                          ),
+                        );
+                      },
                       onEdit: () {
                         showModalBottomSheet(
                           context: context,
@@ -81,6 +89,7 @@ class _HomePageState extends State<Homepage> {
                           listen: false,
                         ).toggleTaskDone(task);
                       },
+                      onDelete: () => showDeleteTaskDialog(context, task),
                     );
                   },
                 ),
@@ -112,6 +121,7 @@ class _HomePageState extends State<Homepage> {
           physics: NeverScrollableScrollPhysics(),
           itemCount: pendingTasks.length,
           itemBuilder: (context, index) {
+            // new_str
             final task = pendingTasks[index];
             return TaskCard(
               index: index,
@@ -121,6 +131,13 @@ class _HomePageState extends State<Homepage> {
               deadline: task.deadline,
               isDone: task.isDone,
               isSynced: task.isSynced,
+              onViewDetails: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => TaskDetailsPage(task: task),
+                  ),
+                );
+              },
               onEdit: () {
                 showModalBottomSheet(
                   context: context,
@@ -142,62 +159,7 @@ class _HomePageState extends State<Homepage> {
                   listen: false,
                 ).toggleTaskDone(task);
               },
-              onDelete: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    backgroundColor: AppColors.toDoCardColor,
-                    title: Text(
-                      "Delete task?",
-                      style: TextStyle(color: AppColors.fontColor),
-                    ),
-                    content: Text(
-                      "Are you sure you want to delete this task?",
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    actions: [
-                      AppTextActionButton(
-                        text: "Cancel",
-                        color: AppColors.fontColor,
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      AppTextActionButton(
-                        text: "Delete",
-                        color: Colors.red,
-                        onPressed: () async {
-                          final messenger = ScaffoldMessenger.of(context);
-                          final navigator = Navigator.of(context);
-
-                          final success = await Provider.of<TaskProvider>(
-                            context,
-                            listen: false,
-                          ).deleteTask(task);
-                          if (!context.mounted) return;
-
-                          navigator.pop();
-
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            messenger.showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  success
-                                      ? "Task deleted"
-                                      : "Something went wrong, please try again",
-                                ),
-                                backgroundColor: success
-                                    ? AppColors.checkedTaskColor
-                                    : Colors.red,
-                              ),
-                            );
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
+              onDelete: () => showDeleteTaskDialog(context, task),
             );
           },
         );
@@ -210,20 +172,9 @@ class _HomePageState extends State<Homepage> {
     context.watch<ThemeProvider>();
     return Scaffold(
       backgroundColor: AppColors.bodyColor,
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: FloatingActionBtn(),
       appBar: AppBar(
         scrolledUnderElevation: 0,
         backgroundColor: AppColors.bodyColor,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed("calendar");
-            },
-            icon: Icon(Icons.calendar_month_outlined, color: AppColors.fontColor),
-          ),
-          PopupmenuitemCustomized(),
-        ],
       ),
       body: RefreshIndicator(
         color: Colors.black,
@@ -273,7 +224,10 @@ class _HomePageState extends State<Homepage> {
                       children: [
                         Text(
                           "Sort",
-                          style: TextStyle(color: AppColors.fontColor, fontSize: 20),
+                          style: TextStyle(
+                            color: AppColors.fontColor,
+                            fontSize: 20,
+                          ),
                         ),
                         IconButton(
                           onPressed: () {
